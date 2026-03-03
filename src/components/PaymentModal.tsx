@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Dialog,
   DialogHeader,
@@ -10,7 +10,7 @@ import {
   DialogOverlay,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Wallet, Landmark, Bitcoin, X, ExternalLink, Loader2, CheckCircle, Copy, Smartphone } from "lucide-react";
+import { CreditCard, Wallet, Landmark, Bitcoin, X, ExternalLink, Loader2, CheckCircle, Copy, Smartphone, Upload, ImageIcon } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -27,63 +27,86 @@ interface PaymentModalProps {
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkdmxhaHRvaXdpbXJveWNxY2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDIwODksImV4cCI6MjA4ODExODA4OX0.DCM-xvruLo2Sho-6I_o87aa5OENCgxCfmyYptMk86BE';
 const SUPABASE_FN = 'https://ldvlahtoiwimroycqcav.supabase.co/functions/v1';
 
-// Методы через Platega (автоматические)
 const PLATEGA_METHODS = [
   { id: 'sbp',      name: 'СБП (Россия)',        icon: <Smartphone className="w-4 h-4" />, badge: 'Быстро' },
   { id: 'cards_ru', name: 'Карты РФ (Мир/Visa)', icon: <CreditCard className="w-4 h-4" />, badge: null },
   { id: 'crypto',   name: 'Криптовалюта',         icon: <Bitcoin className="w-4 h-4" />,    badge: 'Авто' },
 ];
 
-// Методы с ручными реквизитами
 const MANUAL_METHODS = [
-  {
-    id: 'kaspi', name: 'Kaspi (Visa)', icon: <Landmark className="w-4 h-4" />,
-    infoUrl: 'https://telegra.ph/Oplata-Kaspi-10-31',
-    requisites: [{ label: 'Kaspi / РБ — Фарида Л.', value: '4400 4303 0558 1131' }],
-  },
-  {
-    id: 'privat', name: 'Приват Банк', icon: <Landmark className="w-4 h-4" />,
-    infoUrl: 'https://telegra.ph/Oplata-PrivatBank-10-31',
-    requisites: [{ label: 'Приват Банк — Богдан Р.', value: '4441111066552765' }],
-  },
-  {
-    id: 'mono', name: 'MonoBank', icon: <CreditCard className="w-4 h-4" />,
-    infoUrl: 'https://telegra.ph/Oplata-PrivatBank-10-31',
-    requisites: [{ label: 'MonoBank — Богдан Р.', value: '4441111066552765' }],
-  },
-  {
-    id: 'polski', name: 'Bank Polski', icon: <Landmark className="w-4 h-4" />,
-    infoUrl: 'https://telegra.ph/Oplata-Bank-Polski-10-31',
-    requisites: [{ label: 'Bank Polski — Богдан Р.', value: '4323347363236206' }],
-  },
-  {
-    id: 'rb', name: 'Оплата с РБ', icon: <CreditCard className="w-4 h-4" />,
-    infoUrl: 'https://telegra.ph/Oplata-s-belarus-10-31',
-    requisites: [{ label: 'Kaspi Visa — Фарида Л.', value: '4400 4303 0558 1131' }],
-  },
-  {
-    id: 'paypal', name: 'PayPal', icon: <Wallet className="w-4 h-4" />,
-    infoUrl: 'https://telegra.ph/Oplata-PayPal-10-31',
-    requisites: [{ label: 'PayPal Email', value: 'Dark_in@mail.ru' }],
-  },
+  { id: 'kaspi',   name: 'Kaspi (Visa)',  icon: <Landmark className="w-4 h-4" />,   infoUrl: 'https://telegra.ph/Oplata-Kaspi-10-31',       requisites: [{ label: 'Kaspi / РБ — Фарида Л.',    value: '4400 4303 0558 1131' }] },
+  { id: 'privat',  name: 'Приват Банк',   icon: <Landmark className="w-4 h-4" />,   infoUrl: 'https://telegra.ph/Oplata-PrivatBank-10-31',  requisites: [{ label: 'Приват Банк — Богдан Р.',    value: '4441111066552765' }] },
+  { id: 'mono',    name: 'MonoBank',      icon: <CreditCard className="w-4 h-4" />, infoUrl: 'https://telegra.ph/Oplata-PrivatBank-10-31',  requisites: [{ label: 'MonoBank — Богдан Р.',       value: '4441111066552765' }] },
+  { id: 'polski',  name: 'Bank Polski',   icon: <Landmark className="w-4 h-4" />,   infoUrl: 'https://telegra.ph/Oplata-Bank-Polski-10-31', requisites: [{ label: 'Bank Polski — Богдан Р.',    value: '4323347363236206' }] },
+  { id: 'rb',      name: 'Оплата с РБ',   icon: <CreditCard className="w-4 h-4" />, infoUrl: 'https://telegra.ph/Oplata-s-belarus-10-31',   requisites: [{ label: 'Kaspi Visa — Фарида Л.',    value: '4400 4303 0558 1131' }] },
+  { id: 'paypal',  name: 'PayPal',        icon: <Wallet className="w-4 h-4" />,     infoUrl: 'https://telegra.ph/Oplata-PayPal-10-31',      requisites: [{ label: 'PayPal Email',               value: 'Dark_in@mail.ru' }] },
 ];
+
+const METHOD_NAMES: Record<string, string> = {
+  sbp: 'СБП', cards_ru: 'Карты РФ', crypto: 'Криптовалюта',
+  kaspi: 'Kaspi', privat: 'Приват Банк', mono: 'MonoBank',
+  polski: 'Bank Polski', rb: 'РБ', paypal: 'PayPal',
+};
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productName, productId, productPrice, containerRef }) => {
   const { profile } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [transactionId, setTransactionId] = useState<string | null>(null);
-  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'pending' | 'screenshot' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [showRequisites, setShowRequisites] = useState(false);
+  const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
 
   const selectedManual = MANUAL_METHODS.find(m => m.id === selectedMethod);
   const isPlatega = PLATEGA_METHODS.some(m => m.id === selectedMethod);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success('Скопировано!');
+  const copyToClipboard = (text: string) => { navigator.clipboard.writeText(text); toast.success('Скопировано!'); };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScreenshot(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setScreenshotPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSendScreenshot = async () => {
+    if (!screenshot || !profile) return;
+    setStatus('sending');
+    setErrorMsg('');
+
+    try {
+      const fd = new FormData();
+      fd.append('screenshot', screenshot);
+      fd.append('productName', productName);
+      fd.append('productPrice', String(productPrice || 0));
+      fd.append('username', profile.username);
+      fd.append('telegramId', profile.telegram_id);
+      fd.append('paymentMethod', METHOD_NAMES[selectedMethod || ''] || selectedMethod || '');
+
+      const response = await fetch(`${SUPABASE_FN}/send-payment-proof`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON_KEY },
+        body: fd,
+      });
+
+      const data = await response.json();
+      if (!response.ok || data?.error) {
+        setErrorMsg(data?.error || 'Ошибка отправки');
+        setStatus('screenshot');
+      } else {
+        setStatus('success');
+      }
+    } catch {
+      setErrorMsg('Ошибка соединения');
+      setStatus('screenshot');
+    }
   };
 
   const callPlatega = async () => {
@@ -93,26 +116,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
       const response = await fetch(`${SUPABASE_FN}/create-payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
-        body: JSON.stringify({
-          amount: productPrice || 0,
-          productName,
-          profileId: profile!.id,
-          currency: 'RUB',
-          paymentMethodId: selectedMethod,
-        }),
+        body: JSON.stringify({ amount: productPrice || 0, productName, profileId: profile!.id, currency: 'RUB', paymentMethodId: selectedMethod }),
       });
       const data = await response.json();
       if (!response.ok || data?.error) {
-        setErrorMsg(data?.error || 'Ошибка создания платежа. Метод может быть недоступен.');
+        setErrorMsg(data?.error || 'Ошибка создания платежа');
       } else {
         setPaymentUrl(data.redirect);
         setTransactionId(data.transactionId);
         setStatus('pending');
         window.open(data.redirect, '_blank');
       }
-    } catch {
-      setErrorMsg('Ошибка соединения с платёжным сервисом');
-    }
+    } catch { setErrorMsg('Ошибка соединения'); }
     setIsLoading(false);
   };
 
@@ -144,6 +159,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
   const handleClose = () => {
     setSelectedMethod(null); setPaymentUrl(null); setTransactionId(null);
     setStatus('idle'); setErrorMsg(''); setShowRequisites(false);
+    setScreenshot(null); setScreenshotPreview(null);
     onClose();
   };
 
@@ -156,23 +172,68 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
           <DialogHeader className="mb-5">
             <div className="flex justify-between items-start">
               <DialogTitle className="text-xl font-bold uppercase tracking-tight text-white">
-                {status === 'success' ? '✅ Оплата прошла!' : showRequisites ? 'Реквизиты' : 'ОПЛАТА ЗАКАЗА'}
+                {status === 'success' ? '✅ Заявка отправлена!' : status === 'screenshot' || status === 'sending' ? '📎 Скриншот оплаты' : showRequisites ? 'Реквизиты' : 'ОПЛАТА ЗАКАЗА'}
               </DialogTitle>
-              <button onClick={handleClose} className="text-zinc-500 hover:text-white transition-colors flex-shrink-0 ml-4">
-                <X className="h-5 w-5" />
-              </button>
+              <button onClick={handleClose} className="text-zinc-500 hover:text-white transition-colors flex-shrink-0 ml-4"><X className="h-5 w-5" /></button>
             </div>
             <DialogDescription className="text-zinc-500 text-xs text-left mt-1">
-              {status === 'success' ? `${productName} добавлен в ваши покупки` : `«${productName}» — ${productPrice} ₽`}
+              {status === 'success' ? 'Мы проверим оплату и активируем товар' : `«${productName}» — ${productPrice} ₽`}
             </DialogDescription>
           </DialogHeader>
 
           {/* Успех */}
           {status === 'success' && (
-            <div className="flex flex-col items-center gap-6 py-4">
-              <CheckCircle className="text-white" size={56} />
-              <p className="text-zinc-400 text-center text-sm">Покупка успешно завершена и добавлена в ваш профиль.</p>
+            <div className="flex flex-col items-center gap-5 py-4">
+              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center">
+                <CheckCircle className="text-white" size={48} />
+              </div>
+              <div className="text-center space-y-2">
+                <p className="text-white font-bold text-lg">Заявка принята!</p>
+                <p className="text-zinc-400 text-sm leading-relaxed">Скриншот отправлен администратору. После проверки товар будет активирован в вашем профиле.</p>
+              </div>
               <Button onClick={handleClose} className="w-full h-14 bg-white text-black font-black uppercase rounded-2xl">Закрыть</Button>
+            </div>
+          )}
+
+          {/* Загрузка скриншота */}
+          {(status === 'screenshot' || status === 'sending') && (
+            <div className="space-y-4">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${screenshotPreview ? 'border-white/20' : 'border-zinc-700 hover:border-zinc-500'}`}
+              >
+                {screenshotPreview ? (
+                  <div className="space-y-3">
+                    <img src={screenshotPreview} alt="Скриншот" className="w-full max-h-48 object-contain rounded-xl" />
+                    <p className="text-zinc-500 text-xs">Нажмите, чтобы заменить</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 py-4">
+                    <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mx-auto">
+                      <ImageIcon className="text-zinc-500" size={28} />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold">Прикрепите скриншот оплаты</p>
+                      <p className="text-zinc-500 text-xs mt-1">JPG, PNG — нажмите для выбора</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+
+              {errorMsg && <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4"><p className="text-red-400 text-sm">{errorMsg}</p></div>}
+
+              <Button
+                onClick={handleSendScreenshot}
+                disabled={!screenshot || status === 'sending'}
+                className="w-full h-14 bg-white text-black font-black uppercase rounded-2xl hover:bg-zinc-200 disabled:opacity-40"
+              >
+                {status === 'sending' ? (
+                  <span className="flex items-center gap-2"><Loader2 className="animate-spin" size={18} /> Отправляем...</span>
+                ) : (
+                  <span className="flex items-center gap-2"><Upload size={18} /> Отправить заявку</span>
+                )}
+              </Button>
             </div>
           )}
 
@@ -202,21 +263,22 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
                     <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">{req.label}</p>
                     <p className="font-mono text-base tracking-wider text-white mt-1">{req.value}</p>
                   </div>
-                  <button onClick={() => copyToClipboard(req.value)} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-colors ml-3">
-                    <Copy size={16} />
-                  </button>
+                  <button onClick={() => copyToClipboard(req.value)} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-colors ml-3"><Copy size={16} /></button>
                 </div>
               ))}
               <div className="bg-zinc-900/30 p-4 rounded-2xl border border-white/5">
                 <p className="text-[11px] text-zinc-500 leading-relaxed">
-                  Переведите <span className="text-white font-bold">{productPrice} ₽</span> по реквизитам выше и укажите в комментарии название товара. Баланс будет зачислен в течение 5–15 минут.
+                  Переведите <span className="text-white font-bold">{productPrice} ₽</span> по реквизитам выше и укажите в комментарии название товара.
                 </p>
               </div>
               <button onClick={() => window.open(selectedManual.infoUrl, '_blank')} className="w-full flex items-center justify-center gap-2 text-zinc-500 hover:text-white text-sm transition-colors py-2">
                 <ExternalLink size={14} /> Инструкция по оплате
               </button>
-              <Button onClick={handleClose} className="w-full h-14 bg-white text-black font-black uppercase rounded-2xl hover:bg-zinc-200">
-                Я оплатил
+              <Button
+                onClick={() => { setStatus('screenshot'); }}
+                className="w-full h-14 bg-white text-black font-black uppercase rounded-2xl hover:bg-zinc-200"
+              >
+                Я оплатил — прикрепить скриншот
               </Button>
             </div>
           )}
@@ -224,7 +286,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
           {/* Выбор метода */}
           {!showRequisites && status === 'idle' && (
             <div className="space-y-4">
-              {/* Россия — через Platega */}
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600 mb-2 px-1">🇷🇺 Россия (автооплата)</p>
                 <div className="space-y-2">
@@ -241,7 +302,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
                 </div>
               </div>
 
-              {/* Другие страны — ручные реквизиты */}
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600 mb-2 px-1">🌍 Другие страны (реквизиты)</p>
                 <div className="space-y-2">
