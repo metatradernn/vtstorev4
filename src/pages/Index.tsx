@@ -47,7 +47,7 @@ const products = [
     description: 'Тот же функционал, что и у Jarvis Pro, но с женским голосом.',
     fullInfo: 'Тот же функционал, что и у Jarvis Pro, но с женским голосом.\n\nСтиль. Атмосфера. Характер.',
     price: '2380',
-    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800&auto=format&fit=crop',
+    image: '/src/assets/friday-pro.jpg',
     isComingSoon: false
   },
   {
