@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { CreditCard, Wallet, Landmark, Bitcoin, X, ExternalLink, Loader2, CheckCircle, Copy, Smartphone, Upload, ImageIcon } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useAuth } from "@/hooks/use-auth";
+import { useCurrency } from "@/hooks/use-currency";
 import { toast } from "sonner";
 
 interface PaymentModalProps {
@@ -62,6 +63,7 @@ const toKZT = (rubAmount: number): string => {
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productName, productId, productPrice, containerRef }) => {
   const { profile } = useAuth();
+  const { currency, convertPrice, getSymbol, convertTo } = useCurrency();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
@@ -76,6 +78,27 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
 
   const selectedManual = MANUAL_METHODS.find(m => m.id === selectedMethod);
   const isPlatega = PLATEGA_METHODS.some(m => m.id === selectedMethod);
+
+  // Цена в текущей выбранной валюте
+  const priceInCurrency = productPrice
+    ? `${convertPrice(productPrice)} ${getSymbol()}`
+    : '';
+
+  // Цена в валюте конкретного метода оплаты (для реквизитов)
+  const getPriceForMethod = (methodCurrency: string, methodSymbol: string): string => {
+    if (!productPrice) return '';
+    // Если валюта метода совпадает с выбранной — используем живой курс
+    const currencyMap: Record<string, string> = {
+      'RUB': 'RUB', 'KZT': 'KZT', 'UAH': 'UAH',
+      'BYN': 'BYN', 'USD': 'USD', 'EUR': 'EUR',
+      'PLN': 'PLN', 'GBP': 'GBP', 'TRY': 'TRY', 'USDT': 'USD',
+    };
+    const mapped = currencyMap[methodCurrency];
+    if (mapped && mapped !== 'RUB') {
+      return `${convertTo(productPrice, mapped as any)} ${methodSymbol}`;
+    }
+    return `${productPrice.toLocaleString('ru-RU')} ₽`;
+  };
 
   const copyToClipboard = (text: string) => { navigator.clipboard.writeText(text); toast.success('Скопировано!'); };
 
@@ -194,7 +217,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
               <button onClick={handleClose} className="text-zinc-500 hover:text-white transition-colors flex-shrink-0 ml-4"><X className="h-5 w-5" /></button>
             </div>
             <DialogDescription className="text-zinc-500 text-xs text-left mt-1">
-              {status === 'success' ? 'Мы проверим оплату и активируем товар' : `«${productName}» — ${productPrice} ₽`}
+              {status === 'success'
+                ? 'Мы проверим оплату и активируем товар'
+                : `«${productName}» — ${priceInCurrency}`}
             </DialogDescription>
           </DialogHeader>
 
@@ -283,10 +308,20 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
                   <button onClick={() => copyToClipboard(req.value)} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-colors ml-3"><Copy size={16} /></button>
                 </div>
               ))}
-              <div className="bg-zinc-900/30 p-4 rounded-2xl border border-white/5">
+              <div className="bg-zinc-900/30 p-4 rounded-2xl border border-white/5 space-y-1">
                 <p className="text-[11px] text-zinc-500 leading-relaxed">
-                  Переведите <span className="text-white font-bold">{productPrice} ₽</span> по реквизитам выше и укажите в комментарии название товара.
+                  Переведите{' '}
+                  <span className="text-white font-bold">
+                    {getPriceForMethod(selectedManual.currency, selectedManual.symbol)}
+                  </span>
+                  {' '}по реквизитам выше и укажите в комментарии название товара.
                 </p>
+                {/* Дополнительно показываем в рублях если валюта другая */}
+                {selectedManual.currency !== 'RUB' && (
+                  <p className="text-[10px] text-zinc-600">
+                    = {productPrice?.toLocaleString('ru-RU')} ₽ по актуальному курсу
+                  </p>
+                )}
               </div>
               <button onClick={() => window.open(selectedManual.infoUrl, '_blank')} className="w-full flex items-center justify-center gap-2 text-zinc-500 hover:text-white text-sm transition-colors py-2">
                 <ExternalLink size={14} /> Инструкция по оплате
@@ -314,6 +349,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
                         <span className="font-medium text-[14px] text-zinc-100">{method.name}</span>
                         {method.badge && <span className="text-[10px] bg-white/10 text-zinc-400 px-2 py-0.5 rounded-full">{method.badge}</span>}
                       </div>
+                      <span className="text-sm font-mono text-zinc-500 pr-4">
+                        {getPriceForMethod(method.currency, method.symbol)}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -329,6 +367,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
                         <span className="text-zinc-400">{method.icon}</span>
                         <span className="font-medium text-[14px] text-zinc-100">{method.name}</span>
                       </div>
+                      <span className="text-sm font-mono text-zinc-500 pr-2">
+                        {getPriceForMethod(method.currency, method.symbol)}
+                      </span>
                       <button onClick={(e) => { e.stopPropagation(); window.open(method.infoUrl, '_blank'); }}
                         className="p-3 mr-2 rounded-xl bg-white/5 text-zinc-500 hover:text-white hover:bg-white/10 transition-all" title="Инструкция">
                         <ExternalLink size={14} />
@@ -343,7 +384,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
 
               <Button onClick={handlePay} disabled={isLoading || !selectedMethod}
                 className="w-full h-14 bg-white text-black font-black uppercase text-sm tracking-widest rounded-2xl hover:bg-zinc-200 transition-all active:scale-95">
-                {isLoading ? <Loader2 className="animate-spin" size={20} /> : `Оплатить ${productPrice ? `${productPrice} ₽` : ''}`}
+                {isLoading ? <Loader2 className="animate-spin" size={20} /> : `Оплатить ${priceInCurrency}`}
               </Button>
             </div>
           )}
