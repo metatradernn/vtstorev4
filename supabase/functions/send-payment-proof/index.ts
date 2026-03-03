@@ -124,14 +124,17 @@ serve(async (req) => {
       `🆔 ID заявки: \`${purchase.id}\``;
 
     // Inline кнопки для админа
+    // ВАЖНО: callback_data не может превышать 64 байта!
+    // UUID = 36 символов, поэтому используем только первые 8 символов ID (достаточно уникально)
+    const shortId = purchase.id.replace(/-/g, '').substring(0, 16);
     const inlineKeyboard = {
       inline_keyboard: [
         [
-          { text: '✅ Одобрить', callback_data: `approve:${purchase.id}` },
-          { text: '❌ Отклонить', callback_data: `reject:${purchase.id}` },
+          { text: '✅ Одобрить', callback_data: `ok:${shortId}` },
+          { text: '❌ Отклонить', callback_data: `no:${shortId}` },
         ],
         [
-          { text: '🚫 Заблокировать профиль', callback_data: `block:${purchase.id}:${profileId}` },
+          { text: '🚫 Заблокировать профиль', callback_data: `bl:${shortId}` },
         ],
       ],
     };

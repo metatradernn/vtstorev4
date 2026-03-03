@@ -74,35 +74,39 @@ serve(async (req) => {
 
     const parts = data.split(':');
     const action = parts[0];
-    const purchaseId = parts[1];
-    const profileId = parts[2]; // только для block
+    const shortId = parts[1];
 
-    console.log("[telegram-webhook] Action:", action, "purchaseId:", purchaseId);
+    console.log("[telegram-webhook] Action:", action, "shortId:", shortId);
 
-    // Получаем данные о покупке
-    const { data: purchase, error: purchaseError } = await supabase
+    // Ищем покупку по короткому ID (первые 16 символов UUID без дефисов)
+    const { data: allPurchases, error: searchError } = await supabase
       .from('purchases')
       .select('*, profiles(username, telegram_id)')
-      .eq('id', purchaseId)
-      .single();
+      .order('purchased_at', { ascending: false })
+      .limit(200);
 
-    if (purchaseError || !purchase) {
-      console.error("[telegram-webhook] Purchase not found:", purchaseError);
+    const purchase = allPurchases?.find(p => {
+      const pShortId = p.id.replace(/-/g, '').substring(0, 16);
+      return pShortId === shortId;
+    });
+
+    if (searchError || !purchase) {
+      console.error("[telegram-webhook] Purchase not found for shortId:", shortId);
       await answerCallbackQuery(callbackQueryId, '❌ Заявка не найдена');
       return new Response('ok', { status: 200 });
     }
 
-    const now = new Date().toISOString();
+    const profileId = purchase.profile_id;
     const profile = purchase.profiles as { username: string; telegram_id: string } | null;
     const userName = profile?.username || 'Пользователь';
     const userTelegramId = profile?.telegram_id || '';
 
-    if (action === 'approve') {
+    if (action === 'ok') {
       // Одобряем покупку
       await supabase
         .from('purchases')
-        .update({ status: 'approved', reviewed_at: now })
-        .eq('id', purchaseId);
+        .update({ status: 'approved', reviewed_at: new Date().toISOString() })
+        .eq('id', purchase.id);
 
       await answerCallbackQuery(callbackQueryId, '✅ Покупка одобрена!');
 
@@ -126,14 +130,14 @@ serve(async (req) => {
         }
       }
 
-      console.log("[telegram-webhook] Purchase approved:", purchaseId);
+      console.log("[telegram-webhook] Purchase approved:", purchase.id);
 
-    } else if (action === 'reject') {
+    } else if (action === 'no') {
       // Отклоняем покупку
       await supabase
         .from('purchases')
-        .update({ status: 'rejected', reviewed_at: now })
-        .eq('id', purchaseId);
+        .update({ status: 'rejected', reviewed_at: new Date().toISOString() })
+        .eq('id', purchase.id);
 
       await answerCallbackQuery(callbackQueryId, '❌ Покупка отклонена');
 
@@ -155,9 +159,9 @@ serve(async (req) => {
         }
       }
 
-      console.log("[telegram-webhook] Purchase rejected:", purchaseId);
+      console.log("[telegram-webhook] Purchase rejected:", purchase.id);
 
-    } else if (action === 'block') {
+    } else if (action === 'bl') {
       const blockProfileId = profileId || purchase.profile_id;
 
       // Блокируем профиль
@@ -169,8 +173,8 @@ serve(async (req) => {
       // Также отклоняем заявку
       await supabase
         .from('purchases')
-        .update({ status: 'rejected', reviewed_at: now })
-        .eq('id', purchaseId);
+        .update({ status: 'rejected', reviewed_at: new Date().toISOString() })
+        .eq('id', purchase.id);
 
       await answerCallbackQuery(callbackQueryId, '🚫 Профиль заблокирован!');
 
