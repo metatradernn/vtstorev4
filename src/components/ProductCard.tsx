@@ -32,8 +32,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <Card className="w-full h-full flex flex-col border-none bg-black text-white overflow-hidden rounded-[40px] shadow-2xl">
-      {/* Top Image Section with rounded top */}
-      <div className="relative flex-[2.8] overflow-hidden rounded-t-[40px]">
+      {/* Top Image Section with fixed aspect ratio */}
+      <div className="relative aspect-video overflow-hidden rounded-t-[40px] bg-zinc-900">
         <img 
           src={image} 
           alt={name} 
@@ -44,8 +44,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
         {/* Content Overlay on Image */}
         <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent">
-          <h2 className="text-4xl font-black tracking-tighter uppercase leading-none mb-2">{name}</h2>
-          <p className="text-zinc-300 text-sm font-medium max-w-[80%] leading-snug">{description}</p>
+          <h2 className="text-3xl font-black tracking-tighter uppercase leading-none mb-2">{name}</h2>
+          <p className="text-zinc-300 text-xs font-medium max-w-[90%] leading-snug">{description}</p>
         </div>
         
         {isComingSoon && (
