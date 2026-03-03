@@ -32,9 +32,9 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose, product, contain
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogPortal container={containerRef?.current}>
-        <DialogOverlay className="absolute inset-0 z-[100] bg-black/80 backdrop-blur-md" />
-        <DialogContent 
-          className="absolute left-1/2 top-1/2 z-[101] w-[92%] -translate-x-1/2 -translate-y-1/2 gap-0 border border-zinc-800 bg-zinc-950 p-0 shadow-2xl duration-200 rounded-[32px] outline-none overflow-hidden"
+        <DialogOverlay className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm" />
+        <DialogContent
+          className="absolute left-1/2 top-1/2 z-[101] w-[92%] -translate-x-1/2 -translate-y-1/2 gap-0 border border-zinc-800 bg-black p-0 shadow-2xl duration-200 rounded-[32px] outline-none overflow-hidden"
         >
           <div className="relative h-48 w-full">
             <img 
