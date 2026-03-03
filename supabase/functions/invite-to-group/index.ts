@@ -150,7 +150,7 @@ serve(async (req) => {
     console.log("[invite-to-group] addChatMember result:", addData);
 
     if (addData.ok) {
-      // Успешно добавлен — обновляем статус в БД
+      // Успешно добавлен напрямую
       await supabase
         .from('purchases')
         .update({ invited_to_group: true, invited_at: new Date().toISOString() })
@@ -158,50 +158,55 @@ serve(async (req) => {
 
       return new Response(JSON.stringify({
         success: true,
+        added_directly: true,
         group: group.name,
         message: `Вы добавлены в группу ${group.name}!`,
       }), {
         status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
-    } else {
-      // Если не удалось добавить напрямую — создаём invite link
-      console.warn("[invite-to-group] addChatMember failed:", addData.description, "— creating invite link");
+    }
 
-      const linkRes = await fetch(`https://api.telegram.org/bot${INVITE_BOT_TOKEN}/createChatInviteLink`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: group.chatId,
-          member_limit: 1,
-          expire_date: Math.floor(Date.now() / 1000) + 86400, // 24 часа
-        }),
-      });
+    // Не удалось добавить напрямую — всегда создаём одноразовую invite link
+    // Это работает даже если пользователь уже в группе (он просто перейдёт)
+    console.warn("[invite-to-group] addChatMember failed:", addData.description, "— creating invite link");
 
-      const linkData = await linkRes.json();
-      console.log("[invite-to-group] createChatInviteLink result:", linkData);
+    const linkRes = await fetch(`https://api.telegram.org/bot${INVITE_BOT_TOKEN}/createChatInviteLink`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: group.chatId,
+        member_limit: 1,
+        expire_date: Math.floor(Date.now() / 1000) + 86400, // 24 часа
+      }),
+    });
 
-      if (linkData.ok) {
-        await supabase
-          .from('purchases')
-          .update({ invited_to_group: true, invited_at: new Date().toISOString() })
-          .eq('id', purchaseId);
+    const linkData = await linkRes.json();
+    console.log("[invite-to-group] createChatInviteLink result:", linkData);
 
-        return new Response(JSON.stringify({
-          success: true,
-          invite_link: linkData.result.invite_link,
-          group: group.name,
-          message: `Ссылка для вступления в ${group.name}`,
-        }), {
-          status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
+    if (linkData.ok) {
+      // Сохраняем ссылку в БД, но НЕ ставим invited_to_group=true
+      // пока пользователь реально не перешёл по ссылке
+      await supabase
+        .from('purchases')
+        .update({ invite_link: linkData.result.invite_link })
+        .eq('id', purchaseId);
 
       return new Response(JSON.stringify({
-        error: addData.description || 'Не удалось добавить в группу',
+        success: true,
+        added_directly: false,
+        invite_link: linkData.result.invite_link,
+        group: group.name,
+        message: `Ссылка для вступления в ${group.name}`,
       }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    return new Response(JSON.stringify({
+      error: addData.description || 'Не удалось создать ссылку для группы',
+    }), {
+      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
     console.error("[invite-to-group] Error:", error);

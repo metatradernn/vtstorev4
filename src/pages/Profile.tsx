@@ -80,17 +80,17 @@ const Profile = () => {
       });
       const data = await res.json();
       if (data.invite_link) {
-        // Сохраняем ссылку и открываем
+        // Есть ссылка — сохраняем и открываем
         setInviteLinks(prev => ({ ...prev, [purchaseId]: data.invite_link }));
         window.open(data.invite_link, '_blank');
-      } else if (data.success) {
-        // Добавлен автоматически
+      } else if (data.success && data.added_directly) {
+        // Добавлен напрямую без ссылки
         await loadPurchases();
-      } else {
-        alert(data.error || 'Ошибка. Попробуйте позже.');
+      } else if (data.error) {
+        alert(data.error);
       }
     } catch {
-      alert('Ошибка соединения');
+      alert('Ошибка соединения. Попробуйте ещё раз.');
     }
     setInvitingId(null);
   };
@@ -292,18 +292,21 @@ const Profile = () => {
                         {item.status === 'approved' && (
                           <div className="mt-3 pt-3 border-t border-green-400/10 space-y-3">
                             <p className="text-xs text-green-300/70">
-                              🎉 Оплата подтверждена! Нажмите кнопку ниже чтобы получить доступ.
+                              🎉 Оплата подтверждена! Нажмите кнопку чтобы получить доступ к группе.
                             </p>
-                            {item.invited_to_group && !inviteLinks[item.id] ? (
-                              <div className="flex items-center gap-2 text-xs text-green-400 font-bold">
+                            {/* Показываем "в группе" ТОЛЬКО если добавлен напрямую (invited_to_group=true И нет ссылки) */}
+                            {item.invited_to_group && !item.invite_link && !inviteLinks[item.id] ? (
+                              <div className="flex items-center gap-2 text-xs text-green-400 font-bold bg-green-400/10 px-3 py-2 rounded-xl">
                                 <span className="w-2 h-2 rounded-full bg-green-400" />
-                                Вы уже в группе {item.product_name}
+                                Вы добавлены в группу {item.product_name}
                               </div>
                             ) : (
                               <button
                                 onClick={() => {
-                                  if (inviteLinks[item.id]) {
-                                    window.open(inviteLinks[item.id], '_blank');
+                                  // Если есть сохранённая ссылка — открываем её
+                                  const link = inviteLinks[item.id] || item.invite_link;
+                                  if (link) {
+                                    window.open(link, '_blank');
                                   } else {
                                     handleGetProduct(item.id);
                                   }
@@ -313,7 +316,7 @@ const Profile = () => {
                               >
                                 {invitingId === item.id ? (
                                   <><Loader2 size={16} className="animate-spin" /> Получаем доступ...</>
-                                ) : inviteLinks[item.id] ? (
+                                ) : (inviteLinks[item.id] || item.invite_link) ? (
                                   <><ExternalLink size={16} /> Открыть группу</>
                                 ) : (
                                   <><ExternalLink size={16} /> Получить продукт</>
