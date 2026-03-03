@@ -48,28 +48,36 @@ serve(async (req) => {
       `💳 Метод: *${paymentMethod}*\n` +
       `🕐 Время: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}`;
 
-    // Отправляем фото в Telegram
-    const tgFormData = new FormData();
-    tgFormData.append('chat_id', ADMIN_CHAT_ID);
-    tgFormData.append('photo', screenshot, screenshot.name || 'screenshot.jpg');
-    tgFormData.append('caption', caption);
-    tgFormData.append('parse_mode', 'Markdown');
+    // Поддержка нескольких админов через запятую: "123456789,987654321"
+    const adminIds = ADMIN_CHAT_ID.split(',').map(id => id.trim()).filter(Boolean);
+    console.log("[send-payment-proof] Sending to admins:", adminIds);
 
-    const tgResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
-      method: 'POST',
-      body: tgFormData,
-    });
+    const results = await Promise.all(adminIds.map(async (chatId) => {
+      const tgFormData = new FormData();
+      tgFormData.append('chat_id', chatId);
+      tgFormData.append('photo', screenshot, screenshot.name || 'screenshot.jpg');
+      tgFormData.append('caption', caption);
+      tgFormData.append('parse_mode', 'Markdown');
 
-    const tgData = await tgResponse.json();
-    console.log("[send-payment-proof] Telegram response", { ok: tgData.ok, error: tgData.description });
+      const tgResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+        method: 'POST',
+        body: tgFormData,
+      });
 
-    if (!tgData.ok) {
-      return new Response(JSON.stringify({ error: `Ошибка Telegram: ${tgData.description}` }), {
+      const tgData = await tgResponse.json();
+      console.log(`[send-payment-proof] Telegram response for ${chatId}:`, { ok: tgData.ok, error: tgData.description });
+      return { chatId, ok: tgData.ok, error: tgData.description };
+    }));
+
+    const allFailed = results.every(r => !r.ok);
+    if (allFailed) {
+      const firstError = results[0]?.error || 'Ошибка отправки';
+      return new Response(JSON.stringify({ error: `Ошибка Telegram: ${firstError}` }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, sent: results.filter(r => r.ok).length }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
