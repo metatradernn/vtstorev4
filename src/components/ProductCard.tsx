@@ -7,6 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Info, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrency } from "@/hooks/use-currency";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ProductCardProps {
   name: string;
@@ -27,7 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onPay,
   onInfo
 }) => {
-  const { convertPrice, getSymbol } = useCurrency();
+  const { convertPrice, getSymbol, setCurrency } = useCurrency();
   const numericPrice = parseInt(price.replace(/[^\d]/g, '')) || 0;
 
   return (
@@ -63,9 +69,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">
             {isComingSoon ? "Status" : "Starting at"}
           </span>
-          <span className="text-3xl font-bold tracking-tight">
-            {isComingSoon ? "TBA" : `${numericPrice} ₽`}
-          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="text-3xl font-bold tracking-tight hover:text-zinc-400 transition-colors cursor-pointer outline-none">
+                {isComingSoon ? "TBA" : `${convertPrice(numericPrice)} ${getSymbol()}`}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-zinc-900 border-white/10 text-white p-2 rounded-2xl min-w-[160px]">
+              <DropdownMenuItem onClick={() => setCurrency('RUB')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Рубли (₽)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCurrency('UAH')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Гривны (₴)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCurrency('USD')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Доллары ($)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCurrency('EUR')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Евро (€)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCurrency('BYN')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Бел. Рубли (Br)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCurrency('VB')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Vibe Coins (VB)</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         
         <div className="grid grid-cols-2 gap-4 mt-6">

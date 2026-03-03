@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type Currency = 'VB' | 'RUB' | 'USD';
+type Currency = 'VB' | 'RUB' | 'USD' | 'EUR' | 'UAH' | 'BYN';
 
 interface CurrencyContextType {
   currency: Currency;
@@ -11,14 +11,20 @@ interface CurrencyContextType {
 
 const rates: Record<Currency, number> = {
   VB: 1,
-  RUB: 1, // 1 VB = 1 RUB
-  USD: 0.01, // 1 VB = 0.01 USD
+  RUB: 1,
+  USD: 0.01,
+  EUR: 0.009,
+  UAH: 0.45,
+  BYN: 0.035,
 };
 
 const symbols: Record<Currency, string> = {
   VB: 'VB',
   RUB: '₽',
   USD: '$',
+  EUR: '€',
+  UAH: '₴',
+  BYN: 'Br',
 };
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
