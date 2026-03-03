@@ -1,18 +1,26 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase, Profile } from '@/integrations/supabase/client';
+import {
+  getTelegramUser,
+  getTelegramWebApp,
+  formatTelegramId,
+  getTelegramDisplayName,
+  isInsideTelegram,
+  type TelegramUser,
+} from '@/hooks/use-telegram';
 
 interface AuthContextType {
   profile: Profile | null;
   isLoading: boolean;
   login: (telegramId: string, password: string) => Promise<{ error: string | null }>;
   register: (telegramId: string, username: string, password: string) => Promise<{ error: string | null }>;
+  registerWithTelegram: (tgUser: TelegramUser, password: string) => Promise<{ error: string | null }>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Простое хеширование пароля (в продакшене использовать bcrypt)
 const hashPassword = async (password: string): Promise<string> => {
   const encoder = new TextEncoder();
   const data = encoder.encode(password + 'vibe_salt_2024');
@@ -25,12 +33,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('vibe_profile_id');
-    if (stored) {
-      loadProfile(stored);
-    } else {
+    const init = async () => {
+      // Сначала пробуем восстановить сессию из localStorage
+      const stored = localStorage.getItem('vibe_profile_id');
+      if (stored) {
+        await loadProfile(stored);
+        return;
+      }
+
+      // Если внутри Telegram — пробуем автоматически найти профиль
+      const tg = getTelegramWebApp();
+      if (tg) tg.ready();
+
+      const tgUser = getTelegramUser();
+      if (tgUser && isInsideTelegram()) {
+        const telegramId = formatTelegramId(tgUser.id);
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('telegram_id', telegramId)
+          .single();
+
+        if (data) {
+          // Профиль найден — но всё равно нужен пароль, не логиним автоматически
+          // Просто сохраняем что пользователь существует (для UX на Login странице)
+          // Реальный вход только через login()
+        }
+      }
+
       setIsLoading(false);
-    }
+    };
+
+    init();
   }, []);
 
   const loadProfile = async (profileId: string) => {
@@ -41,7 +75,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .single();
 
     if (data && !error) {
-      setProfile(data as Profile);
+      // Проверяем блокировку
+      if ((data as Profile).is_blocked) {
+        setProfile(data as Profile); // показываем экран блокировки
+      } else {
+        setProfile(data as Profile);
+      }
       await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', profileId);
     } else {
       localStorage.removeItem('vibe_profile_id');
@@ -56,16 +95,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const login = async (telegramId: string, password: string): Promise<{ error: string | null }> => {
+    const formattedId = telegramId.startsWith('@') ? telegramId : `@${telegramId}`;
     const hash = await hashPassword(password);
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('telegram_id', telegramId.startsWith('@') ? telegramId : `@${telegramId}`)
+      .eq('telegram_id', formattedId)
       .eq('password_hash', hash)
       .single();
 
     if (error || !data) {
-      return { error: 'Неверный Telegram ID или пароль' };
+      // Проверяем — может профиль существует, но пароль неверный
+      const { data: exists } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('telegram_id', formattedId)
+        .single();
+
+      if (!exists) {
+        return { error: 'Аккаунт не найден. Создайте новый.' };
+      }
+      return { error: 'Неверный пароль' };
     }
 
     if ((data as Profile).is_blocked) {
@@ -78,10 +129,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error: null };
   };
 
+  // Регистрация через Telegram WebApp — ID и имя берём из Telegram
+  const registerWithTelegram = async (tgUser: TelegramUser, password: string): Promise<{ error: string | null }> => {
+    const telegramId = formatTelegramId(tgUser.id);
+    const username = getTelegramDisplayName(tgUser);
+
+    // Проверяем, не занят ли ID
+    const { data: existing } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('telegram_id', telegramId)
+      .single();
+
+    if (existing) {
+      return { error: 'Аккаунт с этим Telegram ID уже существует. Войдите с паролем.' };
+    }
+
+    const hash = await hashPassword(password);
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert({
+        telegram_id: telegramId,
+        username,
+        password_hash: hash,
+        balance: 0,
+        avatar_url: tgUser.photo_url || null,
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      return { error: 'Ошибка при регистрации. Попробуйте снова.' };
+    }
+
+    setProfile(data as Profile);
+    localStorage.setItem('vibe_profile_id', data.id);
+    return { error: null };
+  };
+
+  // Ручная регистрация (для браузера/дев режима)
   const register = async (telegramId: string, username: string, password: string): Promise<{ error: string | null }> => {
     const formattedId = telegramId.startsWith('@') ? telegramId : `@${telegramId}`;
 
-    // Проверяем, не занят ли ID
     const { data: existing } = await supabase
       .from('profiles')
       .select('id')
@@ -119,7 +209,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ profile, isLoading, login, register, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ profile, isLoading, login, register, registerWithTelegram, logout, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

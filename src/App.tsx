@@ -12,9 +12,19 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Регистрируем Telegram webhook при старте приложения
-function WebhookSetup() {
+// Инициализация Telegram WebApp + регистрация webhook
+function AppInit() {
   useEffect(() => {
+    // Инициализируем Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      // Устанавливаем тёмную тему
+      document.documentElement.style.setProperty('--tg-color-scheme', 'dark');
+    }
+
+    // Регистрируем Telegram webhook
     fetch('https://ldvlahtoiwimroycqcav.supabase.co/functions/v1/setup-webhook', {
       method: 'POST',
     }).then(r => r.json()).then(d => {
@@ -28,7 +38,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <WebhookSetup />
+        <AppInit />
         <Toaster />
         <Sonner />
         <BrowserRouter>
