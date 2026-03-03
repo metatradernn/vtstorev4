@@ -27,7 +27,8 @@ serve(async (req) => {
     const formData = await req.formData();
     const screenshot = formData.get('screenshot') as File;
     const productName = formData.get('productName') as string;
-    const productPrice = formData.get('productPrice') as string;
+    const productPrice = formData.get('productPrice') as string; // уже в нужной валюте
+    const country = formData.get('country') as string;
     const username = formData.get('username') as string;
     const telegramId = formData.get('telegramId') as string;
     const paymentMethod = formData.get('paymentMethod') as string;
@@ -43,9 +44,9 @@ serve(async (req) => {
     const caption = `👤 Пользователь: *${username}*\n` +
       `📱 Telegram ID: \`${telegramId}\`\n` +
       `📦 Товар: *${productName}*\n` +
-      `💳 Метод: *${paymentMethod}*\n` +
+      `💳 Метод: *${paymentMethod}*${country ? ` (${country})` : ''}\n` +
       `🕐 Время: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}\n\n` +
-      `💰 Сумма: *${productPrice} ₽*`;
+      `💰 Сумма: *${productPrice}*`;
 
     // Поддержка нескольких админов через запятую: "123456789,987654321"
     const adminIds = ADMIN_CHAT_ID.split(',').map(id => id.trim()).filter(Boolean);

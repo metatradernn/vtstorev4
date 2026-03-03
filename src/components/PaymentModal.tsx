@@ -28,24 +28,31 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const SUPABASE_FN = 'https://ldvlahtoiwimroycqcav.supabase.co/functions/v1';
 
 const PLATEGA_METHODS = [
-  { id: 'sbp',      name: 'СБП (Россия)',        icon: <Smartphone className="w-4 h-4" />, badge: 'Быстро' },
-  { id: 'cards_ru', name: 'Карты РФ (Мир/Visa)', icon: <CreditCard className="w-4 h-4" />, badge: null },
-  { id: 'crypto',   name: 'Криптовалюта',         icon: <Bitcoin className="w-4 h-4" />,    badge: 'Авто' },
+  { id: 'sbp',      name: 'СБП (Россия)',        icon: <Smartphone className="w-4 h-4" />, badge: 'Быстро', country: '🇷🇺 Россия',    currency: 'RUB', symbol: '₽',  rate: 1 },
+  { id: 'cards_ru', name: 'Карты РФ (Мир/Visa)', icon: <CreditCard className="w-4 h-4" />, badge: null,     country: '🇷🇺 Россия',    currency: 'RUB', symbol: '₽',  rate: 1 },
+  { id: 'crypto',   name: 'Криптовалюта',         icon: <Bitcoin className="w-4 h-4" />,    badge: 'Авто',   country: '🌍 Весь мир',   currency: 'USDT', symbol: '$', rate: 0.011 },
 ];
 
 const MANUAL_METHODS = [
-  { id: 'kaspi',   name: 'Kaspi (Visa)',  icon: <Landmark className="w-4 h-4" />,   infoUrl: 'https://telegra.ph/Oplata-Kaspi-10-31',       requisites: [{ label: 'Kaspi / РБ — Фарида Л.',    value: '4400 4303 0558 1131' }] },
-  { id: 'privat',  name: 'Приват Банк',   icon: <Landmark className="w-4 h-4" />,   infoUrl: 'https://telegra.ph/Oplata-PrivatBank-10-31',  requisites: [{ label: 'Приват Банк — Богдан Р.',    value: '4441111066552765' }] },
-  { id: 'mono',    name: 'MonoBank',      icon: <CreditCard className="w-4 h-4" />, infoUrl: 'https://telegra.ph/Oplata-PrivatBank-10-31',  requisites: [{ label: 'MonoBank — Богдан Р.',       value: '4441111066552765' }] },
-  { id: 'polski',  name: 'Bank Polski',   icon: <Landmark className="w-4 h-4" />,   infoUrl: 'https://telegra.ph/Oplata-Bank-Polski-10-31', requisites: [{ label: 'Bank Polski — Богдан Р.',    value: '4323347363236206' }] },
-  { id: 'rb',      name: 'Оплата с РБ',   icon: <CreditCard className="w-4 h-4" />, infoUrl: 'https://telegra.ph/Oplata-s-belarus-10-31',   requisites: [{ label: 'Kaspi Visa — Фарида Л.',    value: '4400 4303 0558 1131' }] },
-  { id: 'paypal',  name: 'PayPal',        icon: <Wallet className="w-4 h-4" />,     infoUrl: 'https://telegra.ph/Oplata-PayPal-10-31',      requisites: [{ label: 'PayPal Email',               value: 'Dark_in@mail.ru' }] },
+  { id: 'kaspi',  name: 'Kaspi (Visa)',  icon: <Landmark className="w-4 h-4" />,   country: '🇰🇿 Казахстан', currency: 'KZT', symbol: '₸',  rate: 4.8,  infoUrl: 'https://telegra.ph/Oplata-Kaspi-10-31',       requisites: [{ label: 'Kaspi / РБ — Фарида Л.',  value: '4400 4303 0558 1131' }] },
+  { id: 'privat', name: 'Приват Банк',   icon: <Landmark className="w-4 h-4" />,   country: '🇺🇦 Украина',   currency: 'UAH', symbol: '₴',  rate: 0.45, infoUrl: 'https://telegra.ph/Oplata-PrivatBank-10-31',  requisites: [{ label: 'Приват Банк — Богдан Р.', value: '4441111066552765' }] },
+  { id: 'mono',   name: 'MonoBank',      icon: <CreditCard className="w-4 h-4" />, country: '🇺🇦 Украина',   currency: 'UAH', symbol: '₴',  rate: 0.45, infoUrl: 'https://telegra.ph/Oplata-PrivatBank-10-31',  requisites: [{ label: 'MonoBank — Богдан Р.',    value: '4441111066552765' }] },
+  { id: 'polski', name: 'Bank Polski',   icon: <Landmark className="w-4 h-4" />,   country: '🇵🇱 Польша',    currency: 'PLN', symbol: 'zł', rate: 0.04, infoUrl: 'https://telegra.ph/Oplata-Bank-Polski-10-31', requisites: [{ label: 'Bank Polski — Богдан Р.', value: '4323347363236206' }] },
+  { id: 'rb',     name: 'Оплата с РБ',   icon: <CreditCard className="w-4 h-4" />, country: '🇧🇾 Беларусь',  currency: 'BYN', symbol: 'Br', rate: 0.035,infoUrl: 'https://telegra.ph/Oplata-s-belarus-10-31',   requisites: [{ label: 'Kaspi Visa — Фарида Л.', value: '4400 4303 0558 1131' }] },
+  { id: 'paypal', name: 'PayPal',        icon: <Wallet className="w-4 h-4" />,     country: '🌍 Весь мир',   currency: 'USD', symbol: '$',  rate: 0.011,infoUrl: 'https://telegra.ph/Oplata-PayPal-10-31',      requisites: [{ label: 'PayPal Email',            value: 'Dark_in@mail.ru' }] },
 ];
 
 const METHOD_NAMES: Record<string, string> = {
   sbp: 'СБП', cards_ru: 'Карты РФ', crypto: 'Криптовалюта',
   kaspi: 'Kaspi', privat: 'Приват Банк', mono: 'MonoBank',
   polski: 'Bank Polski', rb: 'РБ', paypal: 'PayPal',
+};
+
+// Конвертация суммы в нужную валюту
+const convertAmount = (rubAmount: number, rate: number, symbol: string, currency: string): string => {
+  if (currency === 'RUB') return `${rubAmount} ₽`;
+  const converted = Math.ceil(rubAmount * rate);
+  return `${converted} ${symbol} (${rubAmount} ₽)`;
 };
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productName, productId, productPrice, containerRef }) => {
@@ -81,11 +88,20 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
     setStatus('sending');
     setErrorMsg('');
 
+    // Находим метод и считаем сумму в нужной валюте
+    const allMethods = [...PLATEGA_METHODS, ...MANUAL_METHODS];
+    const method = allMethods.find(m => m.id === selectedMethod);
+    const amountStr = method
+      ? convertAmount(productPrice || 0, method.rate, method.symbol, method.currency)
+      : `${productPrice} ₽`;
+    const countryStr = method?.country || '';
+
     try {
       const fd = new FormData();
       fd.append('screenshot', screenshot);
       fd.append('productName', productName);
-      fd.append('productPrice', String(productPrice || 0));
+      fd.append('productPrice', amountStr);
+      fd.append('country', countryStr);
       fd.append('username', profile.username);
       fd.append('telegramId', profile.telegram_id);
       fd.append('paymentMethod', METHOD_NAMES[selectedMethod || ''] || selectedMethod || '');
