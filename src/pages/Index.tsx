@@ -56,7 +56,7 @@ const products = [
     description: 'Анимированные обои с интеграцией Jarvis.',
     fullInfo: 'Анимированные обои с интеграцией Jarvis.\n\nЖивой рабочий стол, который реагирует и работает вместе с вами.\n\nПолная синхронизация с вашим ассистентом и динамические визуальные эффекты.',
     price: '1200',
-    image: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=800&auto=format&fit=crop',
+    image: '/src/assets/vibewall.jpg',
     isComingSoon: false
   },
   {
