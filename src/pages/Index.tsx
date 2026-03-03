@@ -76,8 +76,12 @@ const Index = () => {
             <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Store</h1>
             <p className="text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
           </div>
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-            <Sparkles className="w-5 h-5 text-black" />
+          <div className="w-10 h-10 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)] border border-white/10">
+            <img
+              src="/src/assets/avatar.jpg"
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           </div>
         </header>
 
