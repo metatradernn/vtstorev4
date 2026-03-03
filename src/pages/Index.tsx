@@ -7,7 +7,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Headphones } from "lucide-react";
 import ProductCard from '@/components/ProductCard';
 import PaymentModal from '@/components/PaymentModal';
 import { toast } from 'sonner';
@@ -121,7 +121,12 @@ const Index = () => {
 
         {/* Bottom Navigation */}
         <nav className="pb-10 pt-4 px-10 flex justify-between items-center border-t border-white/5 bg-black/80 backdrop-blur-xl z-20">
-          <div className="w-6 h-6 border-2 border-white/30 rounded-md"></div>
+          <button
+            onClick={() => window.open('https://t.me/vibetechhSupport?direct', '_blank')}
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 active:scale-90 transition-transform text-zinc-400 hover:text-white"
+          >
+            <Headphones size={20} />
+          </button>
           <div className="w-12 h-1 bg-white/10 rounded-full"></div>
           <button
             onClick={() => navigate('/profile')}
