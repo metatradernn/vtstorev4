@@ -18,7 +18,7 @@ const products = [
     name: 'Jarvis Max',
     description: 'Голосовой помощник с встроенным искусственным интеллектом.',
     fullInfo: 'Голосовой помощник с встроенным искусственным интеллектом.\n\nПонимает контекст, отвечает осмысленно, работает как полноценный цифровой ассистент.\n\nПлюс расширенный редактор команд для глубокой кастомизации.',
-    price: '6900₽',
+    price: '6900',
     image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
   },
@@ -27,7 +27,7 @@ const products = [
     name: 'Jarvis Pro',
     description: 'Быстрый голосовой помощник с базой более 150 готовых команд.',
     fullInfo: 'Быстрый голосовой помощник с базой более 150 готовых команд.\n\nСоздавайте собственные сценарии через простой и удобный редактор.\n\nМаксимум скорости. Полный контроль.',
-    price: '2380₽',
+    price: '2380',
     image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
   },
@@ -36,7 +36,7 @@ const products = [
     name: 'PcControl',
     description: 'Полное управление компьютером через Telegram-бота.',
     fullInfo: 'Полное управление компьютером через Telegram-бота из любой точки мира.\n\nЗапуск программ, контроль процессов, доступ к системе — дистанционно и безопасно.',
-    price: '1980₽',
+    price: '1980',
     image: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
   },
@@ -45,7 +45,7 @@ const products = [
     name: 'Friday Pro',
     description: 'Тот же функционал, что и у Jarvis Pro, но с женским голосом.',
     fullInfo: 'Тот же функционал, что и у Jarvis Pro, но с женским голосом.\n\nСтиль. Атмосфера. Характер.',
-    price: '2380₽',
+    price: '2380',
     image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
   },
@@ -54,7 +54,7 @@ const products = [
     name: 'VibeWall',
     description: 'Анимированные обои с интеграцией Jarvis.',
     fullInfo: 'Анимированные обои с интеграцией Jarvis.\n\nЖивой рабочий стол, который реагирует и работает вместе с вами.\n\nПолная синхронизация с вашим ассистентом и динамические визуальные эффекты.',
-    price: '1200₽',
+    price: '1200',
     image: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
   },

@@ -11,8 +11,8 @@ interface CurrencyContextType {
 
 const rates: Record<Currency, number> = {
   VB: 1,
-  RUB: 10, // 1 VB = 10 RUB (пример)
-  USD: 0.1, // 1 VB = 0.1 USD (пример)
+  RUB: 1, // 1 VB = 1 RUB
+  USD: 0.01, // 1 VB = 0.01 USD
 };
 
 const symbols: Record<Currency, string> = {
