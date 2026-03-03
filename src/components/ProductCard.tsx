@@ -4,7 +4,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Info, CreditCard } from "lucide-react";
+import { Info, CreditCard, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrency } from "@/hooks/use-currency";
 import {
@@ -12,6 +12,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 
 interface ProductCardProps {
@@ -24,6 +26,19 @@ interface ProductCardProps {
   onInfo: () => void;
 }
 
+const CURRENCIES = [
+  { id: 'RUB', label: 'Рубли',          symbol: '₽',  flag: '🇷🇺' },
+  { id: 'KZT', label: 'Тенге',          symbol: '₸',  flag: '🇰🇿' },
+  { id: 'UAH', label: 'Гривны',         symbol: '₴',  flag: '🇺🇦' },
+  { id: 'BYN', label: 'Бел. Рубли',     symbol: 'Br', flag: '🇧🇾' },
+  { id: 'USD', label: 'Доллары',        symbol: '$',  flag: '🇺🇸' },
+  { id: 'EUR', label: 'Евро',           symbol: '€',  flag: '🇪🇺' },
+  { id: 'PLN', label: 'Злотые',         symbol: 'zł', flag: '🇵🇱' },
+  { id: 'GBP', label: 'Фунты',          symbol: '£',  flag: '🇬🇧' },
+  { id: 'TRY', label: 'Лиры',           symbol: '₺',  flag: '🇹🇷' },
+  { id: 'VB',  label: 'Vibe Coins',     symbol: 'VB', flag: '⚡' },
+] as const;
+
 const ProductCard: React.FC<ProductCardProps> = ({
   name,
   description,
@@ -33,12 +48,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onPay,
   onInfo
 }) => {
-  const { convertPrice, getSymbol, setCurrency } = useCurrency();
+  const { convertPrice, getSymbol, setCurrency, currency, isLoadingRates, convertTo } = useCurrency();
   const numericPrice = parseInt(price.replace(/[^\d]/g, '')) || 0;
+  const currentCurrencyInfo = CURRENCIES.find(c => c.id === currency);
 
   return (
     <Card className="w-full h-full flex flex-col border-none bg-black text-white overflow-hidden rounded-[40px] shadow-2xl">
-      {/* Top Image Section with fixed aspect ratio */}
+      {/* Top Image Section */}
       <div className="relative aspect-video overflow-hidden rounded-t-[40px] bg-zinc-900">
         <img 
           src={image} 
@@ -48,7 +64,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             isComingSoon && "opacity-40 grayscale"
           )}
         />
-        {/* Content Overlay on Image */}
         <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent">
           <h2 className="text-3xl font-black tracking-tighter uppercase leading-none mb-2">{name}</h2>
           <p className="text-zinc-300 text-xs font-medium max-w-[90%] leading-snug">
@@ -68,22 +83,57 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Bottom Info Section */}
       <div className="flex-1 p-8 flex flex-col justify-between bg-black">
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">
-            {isComingSoon ? "Статус" : "Цена от"}
-          </span>
+          <div className="space-y-0.5">
+            <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em] block">
+              {isComingSoon ? "Статус" : "Цена от"}
+            </span>
+            {!isComingSoon && isLoadingRates && (
+              <span className="text-[10px] text-zinc-600 flex items-center gap-1">
+                <Loader2 size={8} className="animate-spin" /> актуальный курс...
+              </span>
+            )}
+            {!isComingSoon && !isLoadingRates && currentCurrencyInfo && (
+              <span className="text-[10px] text-zinc-600">
+                {currentCurrencyInfo.flag} {currentCurrencyInfo.label}
+              </span>
+            )}
+          </div>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="text-3xl font-bold tracking-tight hover:text-zinc-400 transition-colors cursor-pointer outline-none">
-                {isComingSoon ? "TBA" : `${convertPrice(numericPrice)} ${getSymbol()}`}
+              <button className="text-3xl font-bold tracking-tight hover:text-zinc-400 transition-colors cursor-pointer outline-none flex items-center gap-2">
+                {isComingSoon ? "TBA" : isLoadingRates ? (
+                  <Loader2 size={24} className="animate-spin text-zinc-600" />
+                ) : (
+                  `${convertPrice(numericPrice)} ${getSymbol()}`
+                )}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-zinc-900 border-white/10 text-white p-2 rounded-2xl min-w-[160px]">
-              <DropdownMenuItem onClick={() => setCurrency('RUB')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Рубли (₽)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCurrency('UAH')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Гривны (₴)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCurrency('USD')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Доллары ($)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCurrency('EUR')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Евро (€)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCurrency('BYN')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Бел. Рубли (Br)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCurrency('VB')} className="rounded-xl hover:bg-white/10 cursor-pointer p-3">Vibe Coins (VB)</DropdownMenuItem>
+            <DropdownMenuContent className="bg-zinc-950 border-white/10 text-white p-2 rounded-2xl min-w-[200px] shadow-2xl">
+              <DropdownMenuLabel className="text-[10px] text-zinc-600 uppercase tracking-widest px-3 py-2">
+                Выберите валюту
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-white/5 mb-1" />
+              {CURRENCIES.map((cur) => (
+                <DropdownMenuItem
+                  key={cur.id}
+                  onClick={() => setCurrency(cur.id as any)}
+                  className={cn(
+                    "rounded-xl cursor-pointer p-3 flex items-center justify-between",
+                    currency === cur.id ? "bg-white/10 text-white" : "hover:bg-white/5 text-zinc-300"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <span>{cur.flag}</span>
+                    <span className="font-medium">{cur.label}</span>
+                  </span>
+                  <span className={cn("font-mono text-sm", currency === cur.id ? "text-white font-bold" : "text-zinc-500")}>
+                    {numericPrice > 0 && cur.id !== 'VB'
+                      ? `${convertTo(numericPrice, cur.id as any)} ${cur.symbol}`
+                      : cur.symbol}
+                  </span>
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
