@@ -27,9 +27,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onInfo
 }) => {
   return (
-    <Card className="w-full h-full flex flex-col border-none bg-zinc-900/50 backdrop-blur-sm text-white overflow-hidden rounded-[54px] shadow-2xl">
+    <Card className="w-full h-full flex flex-col border-none bg-zinc-900/50 backdrop-blur-sm text-white overflow-hidden rounded-[48px] shadow-2xl">
       {/* Top Image Section with rounded top */}
-      <div className="relative flex-[1.4] overflow-hidden rounded-t-[54px]">
+      <div className="relative flex-[2.5] overflow-hidden rounded-t-[48px]">
         <img 
           src={image} 
           alt={name} 

@@ -83,15 +83,16 @@ const Index = () => {
 
         {/* Content */}
         <main className="flex-1 overflow-hidden relative">
-          <div className="absolute inset-0 flex flex-col pt-2 pb-6">
+          <div className="absolute inset-0">
             <Carousel
+              orientation="vertical"
               className="w-full h-full"
-              opts={{ align: "center", loop: true }}
+              opts={{ align: "start", loop: true }}
             >
-              <CarouselContent className="-ml-0 h-full">
+              <CarouselContent className="-mt-0 h-full">
                 {products.map((product) => (
-                  <CarouselItem key={product.id} className="pl-0 basis-full h-full flex items-center justify-center p-4">
-                    <div className="w-full h-full max-h-[700px]">
+                  <CarouselItem key={product.id} className="pt-0 basis-full h-full">
+                    <div className="w-full h-full p-2">
                       <ProductCard
                         name={product.name}
                         description={product.description}
