@@ -27,9 +27,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onInfo
 }) => {
   return (
-    <Card className="w-full h-full flex flex-col border-none bg-zinc-900/50 backdrop-blur-sm text-white overflow-hidden rounded-[48px] shadow-2xl">
+    <Card className="w-full h-full flex flex-col border-none bg-black text-white overflow-hidden rounded-[40px] shadow-2xl">
       {/* Top Image Section with rounded top */}
-      <div className="relative flex-[2.5] overflow-hidden rounded-t-[48px]">
+      <div className="relative flex-[2.8] overflow-hidden rounded-t-[40px]">
         <img 
           src={image} 
           alt={name} 
@@ -54,7 +54,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
       
       {/* Bottom Info Section */}
-      <div className="flex-1 p-8 flex flex-col justify-between bg-[#111111]">
+      <div className="flex-1 p-8 flex flex-col justify-between bg-black">
         <div className="flex items-center justify-between">
           <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Starting at</span>
           <span className="text-3xl font-bold tracking-tight">{price}</span>

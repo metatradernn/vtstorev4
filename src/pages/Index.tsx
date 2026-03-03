@@ -63,15 +63,15 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 font-sans text-white">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
       {/* iPhone Frame */}
-      <div className="relative w-full max-w-[390px] h-[844px] bg-zinc-950 rounded-[60px] border-[8px] border-zinc-800 overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] flex flex-col">
+      <div className="relative w-full max-w-[390px] h-screen sm:h-[844px] bg-black rounded-none sm:rounded-[60px] border-0 sm:border-[8px] border-zinc-900 overflow-hidden shadow-none sm:shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col">
         
-        {/* Notch */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-zinc-800 rounded-b-3xl z-50"></div>
+        {/* Notch (only on desktop) */}
+        <div className="hidden sm:block absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-zinc-900 rounded-b-3xl z-50"></div>
         
         {/* Header */}
-        <header className="pt-12 pb-6 px-8 flex justify-between items-center">
+        <header className="pt-14 pb-4 px-8 flex justify-between items-center bg-black/50 backdrop-blur-xl z-20">
           <div>
             <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Store</h1>
             <p className="text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
@@ -111,9 +111,9 @@ const Index = () => {
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="pb-10 pt-4 px-10 flex justify-between items-center border-t border-zinc-900 bg-zinc-950/80 backdrop-blur-md">
-          <div className="w-6 h-6 border-2 border-white rounded-md"></div>
-          <div className="w-12 h-1 bg-zinc-700 rounded-full"></div>
+        <nav className="pb-10 pt-4 px-10 flex justify-between items-center border-t border-white/5 bg-black/80 backdrop-blur-xl z-20">
+          <div className="w-6 h-6 border-2 border-white/30 rounded-md"></div>
+          <div className="w-12 h-1 bg-white/10 rounded-full"></div>
           <div className="w-6 h-6 bg-white rounded-full"></div>
         </nav>
       </div>
