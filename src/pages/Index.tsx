@@ -38,7 +38,7 @@ const products = [
     description: 'Полное управление компьютером через Telegram-бота.',
     fullInfo: 'Полное управление компьютером через Telegram-бота из любой точки мира.\n\nЗапуск программ, контроль процессов, доступ к системе — дистанционно и безопасно.',
     price: '1980',
-    image: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?q=80&w=800&auto=format&fit=crop',
+    image: '/src/assets/pc-control.jpg',
     isComingSoon: false
   },
   {
