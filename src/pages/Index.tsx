@@ -7,7 +7,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { Sparkles, Headphones } from "lucide-react";
+import { Sparkles, Headphones, Newspaper } from "lucide-react";
 import ProductCard from '@/components/ProductCard';
 import PaymentModal from '@/components/PaymentModal';
 import { toast } from 'sonner';
@@ -130,9 +130,9 @@ const Index = () => {
           <div className="w-12 h-1 bg-white/10 rounded-full"></div>
           <button
             onClick={() => navigate('/profile')}
-            className="w-8 h-8 bg-white rounded-full flex items-center justify-center active:scale-90 transition-transform overflow-hidden border border-white/20"
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 active:scale-90 transition-transform text-zinc-400 hover:text-white"
           >
-            <img src="/src/assets/avatar.jpg" className="w-full h-full object-cover" />
+            <Newspaper size={20} />
           </button>
         </nav>
       </div>
