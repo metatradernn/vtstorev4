@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Wallet, Calendar, Clock, ShoppingBag, User, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useCurrency } from '@/hooks/use-currency';
+import TopUpModal from '@/components/TopUpModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ import {
 const Profile = () => {
   const navigate = useNavigate();
   const { currency, setCurrency, convertPrice, getSymbol } = useCurrency();
+  const [isTopUpOpen, setIsTopUpOpen] = React.useState(false);
   
   const userData = {
     username: "Vibe User",
@@ -58,30 +60,39 @@ const Profile = () => {
           </div>
 
           {/* Balance Card with Currency Switcher */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="w-full text-left bg-zinc-900/50 border border-white/5 rounded-[32px] p-6 flex items-center justify-between hover:bg-zinc-900/80 transition-colors group">
-                <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Ваш Баланс</p>
-                  <h3 className="text-3xl font-black text-white">
-                    {convertPrice(userData.balanceVB)} {getSymbol()}
-                  </h3>
-                  <div className="flex items-center gap-1 text-[10px] text-zinc-400 group-hover:text-white transition-colors">
-                    <span>Нажмите, чтобы сменить валюту</span>
-                    <ChevronRight size={10} />
+          <div className="space-y-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full text-left bg-zinc-900/50 border border-white/5 rounded-[32px] p-6 flex items-center justify-between hover:bg-zinc-900/80 transition-colors group">
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Ваш Баланс</p>
+                    <h3 className="text-3xl font-black text-white">
+                      {convertPrice(userData.balanceVB)} {getSymbol()}
+                    </h3>
+                    <div className="flex items-center gap-1 text-[10px] text-zinc-400 group-hover:text-white transition-colors">
+                      <span>Нажмите, чтобы сменить валюту</span>
+                      <ChevronRight size={10} />
+                    </div>
                   </div>
-                </div>
-                <div className="bg-white/10 p-4 rounded-2xl group-hover:scale-110 transition-transform">
-                  <Wallet className="text-white" size={28} />
-                </div>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-zinc-900 border-white/10 text-white w-[200px]">
-              <DropdownMenuItem onClick={() => setCurrency('VB')} className="hover:bg-white/10 cursor-pointer">Vibe Coins (VB)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCurrency('RUB')} className="hover:bg-white/10 cursor-pointer">Рубли (₽)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setCurrency('USD')} className="hover:bg-white/10 cursor-pointer">Доллары ($)</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <div className="bg-white/10 p-4 rounded-2xl group-hover:scale-110 transition-transform">
+                    <Wallet className="text-white" size={28} />
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-zinc-900 border-white/10 text-white w-[200px]">
+                <DropdownMenuItem onClick={() => setCurrency('VB')} className="hover:bg-white/10 cursor-pointer">Vibe Coins (VB)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setCurrency('RUB')} className="hover:bg-white/10 cursor-pointer">Рубли (₽)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setCurrency('USD')} className="hover:bg-white/10 cursor-pointer">Доллары ($)</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button
+              onClick={() => setIsTopUpOpen(true)}
+              className="w-full h-14 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-[24px] font-bold transition-all"
+            >
+              Пополнить баланс
+            </Button>
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-zinc-900/40 p-5 rounded-[28px] border border-white/5 space-y-2">
@@ -114,6 +125,8 @@ const Profile = () => {
             Настроить аккаунт
           </Button>
         </main>
+
+        <TopUpModal isOpen={isTopUpOpen} onClose={() => setIsTopUpOpen(false)} />
 
         <div className="h-10"></div>
       </div>
