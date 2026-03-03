@@ -60,9 +60,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Bottom Info Section */}
       <div className="flex-1 p-8 flex flex-col justify-between bg-black">
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Starting at</span>
+          <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">
+            {isComingSoon ? "Status" : "Starting at"}
+          </span>
           <span className="text-3xl font-bold tracking-tight">
-            {convertPrice(numericPrice)} {getSymbol()}
+            {isComingSoon ? "TBA" : `${convertPrice(numericPrice)} ${getSymbol()}`}
           </span>
         </div>
         

@@ -57,6 +57,15 @@ const products = [
     price: '1200₽',
     image: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
+  },
+  {
+    id: 'friday-next-gen',
+    name: 'FRIDAY',
+    description: 'Новое поколение искусственного интеллекта. Скоро в продаже.',
+    fullInfo: 'FRIDAY — это не просто помощник, это цифровая сущность.\n\nПолное погружение, улучшенная нейронная сеть и уникальный интерфейс взаимодействия.\n\nПродукт находится на стадии финального тестирования.',
+    price: '0₽',
+    image: '/src/assets/friday-bg.png',
+    isComingSoon: true
   }
 ];
 
