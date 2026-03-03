@@ -101,7 +101,7 @@ const Index = () => {
         {/* Header */}
         <header className="pt-10 pb-6 px-12 flex justify-between items-center bg-black/50 backdrop-blur-xl z-20">
           <div>
-            <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Store</h1>
+            <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Магазин</h1>
             <p className="text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
           </div>
           <button
@@ -122,6 +122,9 @@ const Index = () => {
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto relative px-12 pb-12 custom-scrollbar">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em]">Рекомендуемые товары</h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
             {products.map((product) => (
               <ProductCard

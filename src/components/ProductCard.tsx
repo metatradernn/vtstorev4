@@ -51,7 +51,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Content Overlay on Image */}
         <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent">
           <h2 className="text-3xl font-black tracking-tighter uppercase leading-none mb-2">{name}</h2>
-          <p className="text-zinc-300 text-xs font-medium max-w-[90%] leading-snug">{description}</p>
+          <p className="text-zinc-300 text-xs font-medium max-w-[90%] leading-snug">
+            {isComingSoon ? "Продукт скоро поступит в продажу." : description}
+          </p>
         </div>
         
         {isComingSoon && (
@@ -67,7 +69,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="flex-1 p-8 flex flex-col justify-between bg-black">
         <div className="flex items-center justify-between">
           <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">
-            {isComingSoon ? "Status" : "Starting at"}
+            {isComingSoon ? "Статус" : "Цена от"}
           </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
