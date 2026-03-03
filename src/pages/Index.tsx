@@ -16,7 +16,7 @@ const products = [
     id: 'jarvis-max',
     name: 'Jarvis Max',
     description: 'Ultimate personal AI assistant with full hardware integration.',
-    price: '$1,299',
+    price: '6900₽',
     image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
   },
@@ -24,17 +24,25 @@ const products = [
     id: 'jarvis-pro',
     name: 'Jarvis Pro',
     description: 'Advanced productivity suite for creative professionals.',
-    price: '$699',
+    price: '2380₽',
     image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
   },
   {
-    id: 'friday',
-    name: 'FRIDAY',
+    id: 'pc-control',
+    name: 'PcControl',
+    description: 'Seamless desktop automation and neural interface.',
+    price: '1980₽',
+    image: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?q=80&w=800&auto=format&fit=crop',
+    isComingSoon: false
+  },
+  {
+    id: 'friday-pro',
+    name: 'Friday Pro',
     description: 'The next evolution of contextual neural processing.',
-    price: 'TBA',
+    price: '2380₽',
     image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800&auto=format&fit=crop',
-    isComingSoon: true
+    isComingSoon: false
   }
 ];
 
