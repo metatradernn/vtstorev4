@@ -29,7 +29,7 @@ const products = [
     description: 'Быстрый голосовой помощник с базой более 150 готовых команд.',
     fullInfo: 'Быстрый голосовой помощник с базой более 150 готовых команд.\n\nСоздавайте собственные сценарии через простой и удобный редактор.\n\nМаксимум скорости. Полный контроль.',
     price: '2380',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
+    image: '/src/assets/jarvis-pro.jpg',
     isComingSoon: false
   },
   {
