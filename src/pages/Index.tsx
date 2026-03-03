@@ -72,17 +72,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
-      {/* iPhone Frame */}
+      {/* iPad Frame */}
       <div
         ref={phoneContainerRef}
-        className="relative w-full max-w-[390px] h-screen sm:h-[844px] bg-black rounded-none sm:rounded-[60px] border-0 sm:border-[8px] border-zinc-900 overflow-hidden shadow-none sm:shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col"
+        className="relative w-full max-w-[1024px] h-screen sm:h-[768px] bg-black rounded-none sm:rounded-[40px] border-0 sm:border-[12px] border-zinc-900 overflow-hidden shadow-none sm:shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col"
       >
         
-        {/* Notch (only on desktop) */}
-        <div className="hidden sm:block absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-zinc-900 rounded-b-3xl z-50"></div>
-        
         {/* Header */}
-        <header className="pt-14 pb-4 px-8 flex justify-between items-center bg-black/50 backdrop-blur-xl z-20">
+        <header className="pt-10 pb-6 px-12 flex justify-between items-center bg-black/50 backdrop-blur-xl z-20">
           <div>
             <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Store</h1>
             <p className="text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
@@ -100,31 +97,20 @@ const Index = () => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-hidden relative">
-          <div className="absolute inset-0">
-            <Carousel
-              orientation="vertical"
-              className="w-full h-full"
-              opts={{ align: "start", loop: true, axis: "y" }}
-            >
-              <CarouselContent className="-mt-0 h-full">
-                {products.map((product) => (
-                  <CarouselItem key={product.id} className="pt-0 basis-full h-full">
-                    <div className="w-full h-full p-2">
-                      <ProductCard
-                        name={product.name}
-                        description={product.description}
-                        price={product.price}
-                        image={product.image}
-                        isComingSoon={product.isComingSoon}
-                        onPay={() => handlePay(product.name)}
-                        onInfo={() => handleInfo(product.name)}
-                      />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
+        <main className="flex-1 overflow-y-auto relative px-12 pb-12 custom-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                name={product.name}
+                description={product.description}
+                price={product.price}
+                image={product.image}
+                isComingSoon={product.isComingSoon}
+                onPay={() => handlePay(product.name)}
+                onInfo={() => handleInfo(product.name)}
+              />
+            ))}
           </div>
         </main>
 
