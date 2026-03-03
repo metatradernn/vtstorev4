@@ -10,7 +10,7 @@ import {
 import { Sparkles, Headphones, Newspaper } from "lucide-react";
 import ProductCard from '@/components/ProductCard';
 import PaymentModal from '@/components/PaymentModal';
-import { toast } from 'sonner';
+import InfoModal from '@/components/InfoModal';
 
 const products = [
   {
@@ -56,6 +56,7 @@ const Index = () => {
   const phoneContainerRef = React.useRef<HTMLDivElement>(null);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   const handlePay = (productName: string) => {
     setSelectedProduct(productName);
@@ -63,13 +64,11 @@ const Index = () => {
   };
 
   const handleInfo = (productName: string) => {
-    const product = products.find(p => p.name === productName);
-    toast.info(productName, {
-      description: product?.fullInfo || "Информация скоро появится.",
-      className: "bg-zinc-900 text-white border-zinc-800 p-6",
-      duration: 5000,
-    });
+    setSelectedProduct(productName);
+    setIsInfoModalOpen(true);
   };
+
+  const currentProduct = products.find(p => p.name === selectedProduct) || null;
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
@@ -151,6 +150,13 @@ const Index = () => {
         isOpen={isPayModalOpen}
         onClose={() => setIsPayModalOpen(false)}
         productName={selectedProduct || ""}
+        containerRef={phoneContainerRef}
+      />
+
+      <InfoModal
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+        product={currentProduct}
         containerRef={phoneContainerRef}
       />
     </div>
