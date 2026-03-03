@@ -74,13 +74,15 @@ const Index = () => {
 
         {/* Content */}
         <main className="flex-1 overflow-hidden relative">
-          <div className="absolute inset-0 flex flex-col pt-4 pb-8">
-            <h2 className="text-[10px] font-bold text-zinc-600 mb-4 px-8 uppercase tracking-[0.3em]">Featured Products</h2>
-            <Carousel className="w-full h-full" opts={{ align: "center", loop: true }}>
-              <CarouselContent className="-ml-4 h-full">
+          <div className="absolute inset-0 flex flex-col pt-2 pb-6">
+            <Carousel
+              className="w-full h-full"
+              opts={{ align: "center", loop: true }}
+            >
+              <CarouselContent className="-ml-0 h-full">
                 {products.map((product) => (
-                  <CarouselItem key={product.id} className="pl-4 basis-[90%] h-full">
-                    <div className="h-full py-2">
+                  <CarouselItem key={product.id} className="pl-0 basis-full h-full flex items-center justify-center p-4">
+                    <div className="w-full h-full max-h-[700px]">
                       <ProductCard
                         name={product.name}
                         description={product.description}
