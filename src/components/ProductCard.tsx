@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Info, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCurrency } from "@/hooks/use-currency";
 
 interface ProductCardProps {
   name: string;
@@ -26,6 +27,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onPay,
   onInfo
 }) => {
+  const { convertPrice, getSymbol } = useCurrency();
+  const numericPrice = parseInt(price.replace(/[^\d]/g, '')) || 0;
+
   return (
     <Card className="w-full h-full flex flex-col border-none bg-black text-white overflow-hidden rounded-[40px] shadow-2xl">
       {/* Top Image Section with rounded top */}
@@ -57,7 +61,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="flex-1 p-8 flex flex-col justify-between bg-black">
         <div className="flex items-center justify-between">
           <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">Starting at</span>
-          <span className="text-3xl font-bold tracking-tight">{price}</span>
+          <span className="text-3xl font-bold tracking-tight">
+            {convertPrice(numericPrice)} {getSymbol()}
+          </span>
         </div>
         
         <div className="grid grid-cols-2 gap-4 mt-6">

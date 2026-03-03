@@ -2,19 +2,26 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Wallet, Calendar, Clock, ShoppingBag, User } from 'lucide-react';
+import { ArrowLeft, Wallet, Calendar, Clock, ShoppingBag, User, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useCurrency } from '@/hooks/use-currency';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { currency, setCurrency, convertPrice, getSymbol } = useCurrency();
   
-  // Имитация данных пользователя
   const userData = {
     username: "Vibe User",
     telegramId: "@vibe_tech_user",
     registrationDate: "12.03.2024",
     daysInApp: 142,
-    balance: "15,400 VB",
+    balanceVB: 0, // Баланс теперь 0
     purchasedProducts: [
       { id: 1, name: "Jarvis Pro", date: "15.03.2024" },
       { id: 2, name: "PcControl", date: "20.04.2024" }
@@ -25,7 +32,6 @@ const Profile = () => {
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
       <div className="relative w-full max-w-[390px] h-screen sm:h-[844px] bg-black rounded-none sm:rounded-[60px] border-0 sm:border-[8px] border-zinc-900 overflow-hidden flex flex-col">
         
-        {/* Header */}
         <header className="pt-14 pb-4 px-6 flex items-center gap-4 bg-black/50 backdrop-blur-xl z-20">
           <button onClick={() => navigate('/')} className="p-2 hover:bg-white/10 rounded-full transition-colors">
             <ArrowLeft size={24} />
@@ -34,7 +40,6 @@ const Profile = () => {
         </header>
 
         <main className="flex-1 overflow-y-auto px-6 py-4 space-y-8">
-          {/* User Avatar & Info */}
           <div className="flex flex-col items-center text-center space-y-4 pt-4">
             <div className="w-28 h-28 rounded-full border-2 border-white/10 p-1 relative">
               <img 
@@ -52,18 +57,32 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Balance Card */}
-          <div className="bg-zinc-900/50 border border-white/5 rounded-[32px] p-6 flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Ваш Баланс</p>
-              <h3 className="text-3xl font-black text-white">{userData.balance}</h3>
-            </div>
-            <div className="bg-white/10 p-4 rounded-2xl">
-              <Wallet className="text-white" size={28} />
-            </div>
-          </div>
+          {/* Balance Card with Currency Switcher */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-full text-left bg-zinc-900/50 border border-white/5 rounded-[32px] p-6 flex items-center justify-between hover:bg-zinc-900/80 transition-colors group">
+                <div className="space-y-1">
+                  <p className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Ваш Баланс</p>
+                  <h3 className="text-3xl font-black text-white">
+                    {convertPrice(userData.balanceVB)} {getSymbol()}
+                  </h3>
+                  <div className="flex items-center gap-1 text-[10px] text-zinc-400 group-hover:text-white transition-colors">
+                    <span>Нажмите, чтобы сменить валюту</span>
+                    <ChevronRight size={10} />
+                  </div>
+                </div>
+                <div className="bg-white/10 p-4 rounded-2xl group-hover:scale-110 transition-transform">
+                  <Wallet className="text-white" size={28} />
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-zinc-900 border-white/10 text-white w-[200px]">
+              <DropdownMenuItem onClick={() => setCurrency('VB')} className="hover:bg-white/10 cursor-pointer">Vibe Coins (VB)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCurrency('RUB')} className="hover:bg-white/10 cursor-pointer">Рубли (₽)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCurrency('USD')} className="hover:bg-white/10 cursor-pointer">Доллары ($)</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-zinc-900/40 p-5 rounded-[28px] border border-white/5 space-y-2">
               <Calendar className="text-zinc-500" size={20} />
@@ -77,7 +96,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Purchased Items */}
           <div className="space-y-4">
             <h4 className="text-sm font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-2 px-2">
               <ShoppingBag size={14} /> Мои покупки
@@ -97,7 +115,6 @@ const Profile = () => {
           </Button>
         </main>
 
-        {/* Fake Nav Placeholder */}
         <div className="h-10"></div>
       </div>
     </div>
