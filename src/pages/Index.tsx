@@ -1,17 +1,114 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+"use client";
 
-import { MadeWithDyad } from "@/components/made-with-dyad";
+import React, { useState } from 'react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import ProductCard from '@/components/ProductCard';
+import PaymentModal from '@/components/PaymentModal';
+import { toast } from 'sonner';
+
+const products = [
+  {
+    id: 'jarvis-max',
+    name: 'Jarvis Max',
+    description: 'Ultimate personal AI assistant with full hardware integration.',
+    price: '$1,299',
+    image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=800&auto=format&fit=crop',
+    isComingSoon: false
+  },
+  {
+    id: 'jarvis-pro',
+    name: 'Jarvis Pro',
+    description: 'Advanced productivity suite for creative professionals.',
+    price: '$699',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
+    isComingSoon: false
+  },
+  {
+    id: 'friday',
+    name: 'FRIDAY',
+    description: 'The next evolution of contextual neural processing.',
+    price: 'TBA',
+    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800&auto=format&fit=crop',
+    isComingSoon: true
+  }
+];
 
 const Index = () => {
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+
+  const handlePay = (productName: string) => {
+    setSelectedProduct(productName);
+    setIsPayModalOpen(true);
+  };
+
+  const handleInfo = (productName: string) => {
+    toast.info(`Информация о ${productName}`, {
+      description: "Подробные характеристики будут доступны в следующем обновлении.",
+      className: "bg-zinc-900 text-white border-zinc-800"
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">
-          Start building your amazing project here!
-        </p>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 font-sans text-white">
+      {/* iPhone Frame */}
+      <div className="relative w-full max-w-[390px] h-[844px] bg-zinc-950 rounded-[60px] border-[8px] border-zinc-800 overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] flex flex-col">
+        
+        {/* Notch */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-zinc-800 rounded-b-3xl z-50"></div>
+        
+        {/* Header */}
+        <header className="pt-12 pb-6 px-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Store</h1>
+            <p className="text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
+          </div>
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+            <div className="w-4 h-4 bg-black rotate-45"></div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="flex-1 flex flex-col justify-center overflow-hidden">
+          <div className="px-4 mb-8">
+            <h2 className="text-sm font-medium text-zinc-400 mb-2 px-4">New Collection</h2>
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {products.map((product) => (
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-[85%]">
+                    <ProductCard
+                      name={product.name}
+                      description={product.description}
+                      price={product.price}
+                      image={product.image}
+                      isComingSoon={product.isComingSoon}
+                      onPay={() => handlePay(product.name)}
+                      onInfo={() => handleInfo(product.name)}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
+        </main>
+
+        {/* Bottom Navigation */}
+        <nav className="pb-10 pt-4 px-10 flex justify-between items-center border-t border-zinc-900 bg-zinc-950/80 backdrop-blur-md">
+          <div className="w-6 h-6 border-2 border-white rounded-md"></div>
+          <div className="w-12 h-1 bg-zinc-700 rounded-full"></div>
+          <div className="w-6 h-6 bg-white rounded-full"></div>
+        </nav>
       </div>
-      <MadeWithDyad />
+
+      <PaymentModal 
+        isOpen={isPayModalOpen} 
+        onClose={() => setIsPayModalOpen(false)}
+        productName={selectedProduct || ""}
+      />
     </div>
   );
 };
