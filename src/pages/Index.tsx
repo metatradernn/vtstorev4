@@ -73,22 +73,24 @@ const Index = () => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 flex flex-col justify-center overflow-hidden">
-          <div className="px-4 mb-8">
-            <h2 className="text-sm font-medium text-zinc-400 mb-2 px-4">New Collection</h2>
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
+        <main className="flex-1 overflow-hidden relative">
+          <div className="absolute inset-0 flex flex-col pt-4 pb-8">
+            <h2 className="text-[10px] font-bold text-zinc-600 mb-4 px-8 uppercase tracking-[0.3em]">Featured Products</h2>
+            <Carousel className="w-full h-full" opts={{ align: "center", loop: true }}>
+              <CarouselContent className="-ml-4 h-full">
                 {products.map((product) => (
-                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-[85%]">
-                    <ProductCard
-                      name={product.name}
-                      description={product.description}
-                      price={product.price}
-                      image={product.image}
-                      isComingSoon={product.isComingSoon}
-                      onPay={() => handlePay(product.name)}
-                      onInfo={() => handleInfo(product.name)}
-                    />
+                  <CarouselItem key={product.id} className="pl-4 basis-[90%] h-full">
+                    <div className="h-full py-2">
+                      <ProductCard
+                        name={product.name}
+                        description={product.description}
+                        price={product.price}
+                        image={product.image}
+                        isComingSoon={product.isComingSoon}
+                        onPay={() => handlePay(product.name)}
+                        onInfo={() => handleInfo(product.name)}
+                      />
+                    </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>

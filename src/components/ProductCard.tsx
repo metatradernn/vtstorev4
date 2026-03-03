@@ -16,18 +16,18 @@ interface ProductCardProps {
   onInfo: () => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ 
-  name, 
-  description, 
-  price, 
-  image, 
-  isComingSoon, 
-  onPay, 
-  onInfo 
+const ProductCard: React.FC<ProductCardProps> = ({
+  name,
+  description,
+  price,
+  image,
+  isComingSoon,
+  onPay,
+  onInfo
 }) => {
   return (
-    <Card className="w-full max-w-[320px] mx-auto border-none bg-zinc-900 text-white overflow-hidden shadow-2xl rounded-[40px]">
-      <div className="relative aspect-[4/5] overflow-hidden">
+    <Card className="w-full h-full flex flex-col border-none bg-zinc-900 text-white overflow-hidden shadow-2xl rounded-[48px]">
+      <div className="relative flex-1 overflow-hidden">
         <img 
           src={image} 
           alt={name} 
