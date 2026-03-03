@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Wallet, Calendar, Clock, ShoppingBag, LogOut, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Wallet, Calendar, Clock, ShoppingBag, LogOut, ChevronRight, RefreshCw } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useCurrency } from '@/hooks/use-currency';
 import { useAuth } from '@/hooks/use-auth';
@@ -15,13 +15,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const STATUS_CONFIG = {
+  pending:  { label: 'На рассмотрении', color: 'text-yellow-400', bg: 'bg-yellow-400/10 border-yellow-400/20', dot: 'bg-yellow-400' },
+  approved: { label: 'Одобрено ✅',      color: 'text-green-400',  bg: 'bg-green-400/10 border-green-400/20',   dot: 'bg-green-400' },
+  rejected: { label: 'Отклонено ❌',     color: 'text-red-400',    bg: 'bg-red-400/10 border-red-400/20',       dot: 'bg-red-400' },
+};
+
 const Profile = () => {
   const navigate = useNavigate();
   const { currency, setCurrency, convertPrice, getSymbol } = useCurrency();
-  const { profile, logout, isLoading } = useAuth();
+  const { profile, logout, isLoading, refreshProfile } = useAuth();
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [daysInApp, setDaysInApp] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !profile) {
@@ -39,6 +46,16 @@ const Profile = () => {
     }
   }, [profile]);
 
+  // Автообновление статусов каждые 15 секунд
+  useEffect(() => {
+    if (!profile) return;
+    const interval = setInterval(() => {
+      loadPurchases();
+      refreshProfile();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [profile]);
+
   const loadPurchases = async () => {
     if (!profile) return;
     const { data } = await supabase
@@ -47,6 +64,12 @@ const Profile = () => {
       .eq('profile_id', profile.id)
       .order('purchased_at', { ascending: false });
     if (data) setPurchases(data as Purchase[]);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([loadPurchases(), refreshProfile()]);
+    setIsRefreshing(false);
   };
 
   const handleLogout = () => {
@@ -62,7 +85,33 @@ const Profile = () => {
     );
   }
 
+  // Заблокированный экран
+  if (profile.is_blocked) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
+        <div className="relative w-full max-w-[1024px] h-screen sm:h-[768px] bg-black rounded-none sm:rounded-[40px] border-0 sm:border-[12px] border-zinc-900 overflow-hidden flex flex-col items-center justify-center shadow-[0_0_100px_rgba(0,0,0,0.8)]">
+          <div className="text-center px-12 space-y-6">
+            <div className="text-8xl mb-4">🚫</div>
+            <h1 className="text-4xl font-black uppercase tracking-tighter text-red-400">Профиль заблокирован</h1>
+            <p className="text-zinc-400 text-lg max-w-md mx-auto leading-relaxed">
+              {profile.block_reason || 'Ваш профиль был заблокирован администратором.'}
+            </p>
+            <p className="text-zinc-600 text-sm">Для разблокировки обратитесь в поддержку</p>
+            <button
+              onClick={handleLogout}
+              className="mt-8 flex items-center gap-2 px-8 py-4 rounded-2xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all text-base font-bold mx-auto"
+            >
+              <LogOut size={18} />
+              Выйти
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const registrationDate = new Date(profile.created_at).toLocaleDateString('ru-RU');
+  const pendingCount = purchases.filter(p => p.status === 'pending').length;
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
@@ -74,14 +123,28 @@ const Profile = () => {
               <ArrowLeft size={28} />
             </button>
             <h1 className="text-2xl font-bold">Профиль</h1>
+            {pendingCount > 0 && (
+              <span className="bg-yellow-400 text-black text-xs font-black px-3 py-1 rounded-full animate-pulse">
+                {pendingCount} на рассмотрении
+              </span>
+            )}
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all text-sm font-bold"
-          >
-            <LogOut size={16} />
-            Выйти
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleRefresh}
+              className="p-3 hover:bg-white/10 rounded-full transition-colors border border-white/5"
+              title="Обновить статусы"
+            >
+              <RefreshCw size={18} className={isRefreshing ? 'animate-spin text-white' : 'text-zinc-500'} />
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all text-sm font-bold"
+            >
+              <LogOut size={16} />
+              Выйти
+            </button>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto px-12 py-8 space-y-10">
@@ -164,17 +227,56 @@ const Profile = () => {
                     <p className="text-zinc-600 text-sm font-medium">Покупок пока нет</p>
                   </div>
                 ) : (
-                  purchases.map((item) => (
-                    <div key={item.id} className="bg-zinc-900/40 p-5 rounded-3xl flex justify-between items-center border border-white/5 hover:bg-zinc-900/60 transition-colors">
-                      <div className="flex flex-col">
-                        <span className="font-bold text-lg">{item.product_name}</span>
-                        <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Лицензия активна</span>
+                  purchases.map((item) => {
+                    const statusCfg = STATUS_CONFIG[item.status] || STATUS_CONFIG.pending;
+                    return (
+                      <div key={item.id} className={`p-5 rounded-3xl border transition-colors ${statusCfg.bg}`}>
+                        <div className="flex justify-between items-start">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-bold text-lg text-white">{item.product_name}</span>
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full ${statusCfg.dot} ${item.status === 'pending' ? 'animate-pulse' : ''}`} />
+                              <span className={`text-xs font-bold uppercase tracking-widest ${statusCfg.color}`}>
+                                {statusCfg.label}
+                              </span>
+                            </div>
+                            {item.payment_method && (
+                              <span className="text-[10px] text-zinc-600 uppercase tracking-widest">{item.payment_method}</span>
+                            )}
+                          </div>
+                          <div className="text-right flex flex-col gap-1">
+                            <span className="text-sm font-mono text-zinc-500 bg-black/40 px-3 py-1 rounded-lg">
+                              {new Date(item.purchased_at).toLocaleDateString('ru-RU')}
+                            </span>
+                            <span className="text-xs font-bold text-white/60">{item.price} ₽</span>
+                          </div>
+                        </div>
+
+                        {/* Статусные сообщения */}
+                        {item.status === 'pending' && (
+                          <div className="mt-3 pt-3 border-t border-yellow-400/10">
+                            <p className="text-xs text-yellow-300/70">
+                              ⏳ Ваш чек проверяется администратором. Обычно это занимает до 30 минут.
+                            </p>
+                          </div>
+                        )}
+                        {item.status === 'approved' && (
+                          <div className="mt-3 pt-3 border-t border-green-400/10">
+                            <p className="text-xs text-green-300/70">
+                              🎉 Оплата подтверждена! Лицензия активирована.
+                            </p>
+                          </div>
+                        )}
+                        {item.status === 'rejected' && (
+                          <div className="mt-3 pt-3 border-t border-red-400/10">
+                            <p className="text-xs text-red-300/70">
+                              ❌ Заявка отклонена. Пожалуйста, свяжитесь с поддержкой или попробуйте снова.
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <span className="text-sm font-mono text-zinc-500 bg-black/40 px-3 py-1 rounded-lg">
-                        {new Date(item.purchased_at).toLocaleDateString('ru-RU')}
-                      </span>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

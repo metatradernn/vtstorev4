@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (data && !error) {
       setProfile(data as Profile);
-      // Обновляем last_seen
       await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', profileId);
     } else {
       localStorage.removeItem('vibe_profile_id');
@@ -67,6 +66,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (error || !data) {
       return { error: 'Неверный Telegram ID или пароль' };
+    }
+
+    if ((data as Profile).is_blocked) {
+      return { error: '🚫 Ваш профиль заблокирован. Обратитесь в поддержку.' };
     }
 
     setProfile(data as Profile);

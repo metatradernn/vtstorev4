@@ -13,6 +13,8 @@ export type Profile = {
   avatar_url: string | null;
   created_at: string;
   last_seen: string;
+  is_blocked: boolean;
+  block_reason: string | null;
 };
 
 export type Purchase = {
@@ -22,4 +24,9 @@ export type Purchase = {
   product_name: string;
   price: number;
   purchased_at: string;
+  status: 'pending' | 'approved' | 'rejected';
+  payment_method: string | null;
+  screenshot_url: string | null;
+  reviewed_at: string | null;
+  telegram_message_id: number | null;
 };

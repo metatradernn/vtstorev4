@@ -99,11 +99,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
       const fd = new FormData();
       fd.append('screenshot', screenshot);
       fd.append('productName', productName);
+      fd.append('productId', productId || productName.toLowerCase().replace(/\s+/g, '_'));
       fd.append('rubAmount', String(productPrice || 0));
       fd.append('country', countryStr);
       fd.append('username', profile.username);
       fd.append('telegramId', profile.telegram_id);
       fd.append('paymentMethod', METHOD_NAMES[selectedMethod || ''] || selectedMethod || '');
+      fd.append('profileId', profile.id);
 
       const response = await fetch(`${SUPABASE_FN}/send-payment-proof`, {
         method: 'POST',
