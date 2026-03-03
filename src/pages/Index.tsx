@@ -87,7 +87,7 @@ const Index = () => {
             <Carousel
               orientation="vertical"
               className="w-full h-full"
-              opts={{ align: "start", loop: true }}
+              opts={{ align: "start", loop: true, axis: "y" }}
             >
               <CarouselContent className="-mt-0 h-full">
                 {products.map((product) => (
