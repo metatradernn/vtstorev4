@@ -93,16 +93,23 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     setErrorMsg('');
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: {
+      const response = await fetch('https://ldvlahtoiwimroycqcav.supabase.co/functions/v1/create-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkdmxhaHRvaXdpbXJveWNxY2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDIwODksImV4cCI6MjA4ODExODA4OX0.DCM-xvruLo2Sho-6I_o87aa5OENCgxCfmyYptMk86BE',
+        },
+        body: JSON.stringify({
           amount: productPrice || 0,
           productName,
           profileId: profile.id,
           currency: 'RUB',
-        },
+        }),
       });
 
-      if (error || data?.error) {
+      const data = await response.json();
+
+      if (!response.ok || data?.error) {
         setErrorMsg(data?.error || 'Ошибка создания платежа');
         setIsLoading(false);
         return;
@@ -111,8 +118,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       setPaymentUrl(data.redirect);
       setTransactionId(data.transactionId);
       setStatus('pending');
-
-      // Открываем страницу оплаты
       window.open(data.redirect, '_blank');
 
     } catch (e) {
@@ -126,23 +131,34 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     if (!transactionId || !profile) return;
     setIsLoading(true);
 
-    const { data } = await supabase.functions.invoke('check-payment', {
-      body: {
-        transactionId,
-        profileId: profile.id,
-        productName,
-        productId: productId || '',
-        price: productPrice || 0,
-      },
-    });
+    try {
+      const response = await fetch('https://ldvlahtoiwimroycqcav.supabase.co/functions/v1/check-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkdmxhaHRvaXdpbXJveWNxY2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDIwODksImV4cCI6MjA4ODExODA4OX0.DCM-xvruLo2Sho-6I_o87aa5OENCgxCfmyYptMk86BE',
+        },
+        body: JSON.stringify({
+          transactionId,
+          profileId: profile.id,
+          productName,
+          productId: productId || '',
+          price: productPrice || 0,
+        }),
+      });
 
-    if (data?.status === 'CONFIRMED') {
-      setStatus('success');
-    } else if (data?.status === 'CANCELED') {
-      setStatus('error');
-      setErrorMsg('Платёж отменён');
-    } else {
-      setErrorMsg('Платёж ещё не подтверждён. Попробуйте позже.');
+      const data = await response.json();
+
+      if (data?.status === 'CONFIRMED') {
+        setStatus('success');
+      } else if (data?.status === 'CANCELED') {
+        setStatus('error');
+        setErrorMsg('Платёж отменён');
+      } else {
+        setErrorMsg('Платёж ещё не подтверждён. Попробуйте через минуту.');
+      }
+    } catch (e) {
+      setErrorMsg('Ошибка проверки статуса');
     }
 
     setIsLoading(false);
