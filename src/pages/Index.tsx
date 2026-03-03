@@ -163,6 +163,8 @@ const Index = () => {
         isOpen={isPayModalOpen}
         onClose={() => setIsPayModalOpen(false)}
         productName={selectedProduct || ""}
+        productId={currentProduct?.id}
+        productPrice={currentProduct ? parseInt(currentProduct.price) : 0}
         containerRef={phoneContainerRef}
       />
 
