@@ -64,7 +64,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {isComingSoon ? "Status" : "Starting at"}
           </span>
           <span className="text-3xl font-bold tracking-tight">
-            {isComingSoon ? "TBA" : `${convertPrice(numericPrice)} ${getSymbol()}`}
+            {isComingSoon ? "TBA" : `${numericPrice} ₽`}
           </span>
         </div>
         
