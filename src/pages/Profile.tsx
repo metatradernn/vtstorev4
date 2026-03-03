@@ -66,7 +66,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
-      <div className="relative w-full max-w-[1024px] h-screen sm:h-[768px] bg-black rounded-none sm:rounded-[40px] border-0 sm:border-[12px] border-zinc-900 overflow-hidden flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.8)]">
+      <div className="relative w-full max-w-[1024px] h-screen sm:h-[768px] bg-black rounded-none sm:rounded-[40px] border-0 sm:border-[12px] border-white overflow-hidden flex flex-col shadow-[0_0_100px_rgba(255,255,255,0.1)]">
 
         <header className="pt-10 pb-6 px-12 flex items-center justify-between bg-black/50 backdrop-blur-xl z-20">
           <div className="flex items-center gap-6">

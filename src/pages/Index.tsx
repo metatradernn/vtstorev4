@@ -95,7 +95,7 @@ const Index = () => {
       {/* iPad Frame */}
       <div
         ref={phoneContainerRef}
-        className="relative w-full max-w-[1024px] h-screen sm:h-[768px] bg-black rounded-none sm:rounded-[40px] border-0 sm:border-[12px] border-zinc-900 overflow-hidden shadow-none sm:shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col"
+        className="relative w-full max-w-[1024px] h-screen sm:h-[768px] bg-black rounded-none sm:rounded-[40px] border-0 sm:border-[12px] border-white overflow-hidden shadow-none sm:shadow-[0_0_100px_rgba(255,255,255,0.1)] flex flex-col"
       >
         
         {/* Header */}
