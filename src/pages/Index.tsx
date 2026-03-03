@@ -2,11 +2,6 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
 import { Sparkles, Headphones, Newspaper, User } from "lucide-react";
 import ProductCard from '@/components/ProductCard';
 import PaymentModal from '@/components/PaymentModal';
@@ -92,20 +87,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
-      {/* iPad Frame */}
       <div
         ref={phoneContainerRef}
         className="relative w-full max-w-[1024px] h-screen sm:h-[768px] bg-black rounded-none sm:rounded-[40px] border-0 sm:border-[12px] border-zinc-900 overflow-hidden shadow-none sm:shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col"
       >
         
         {/* Header */}
-        <header className="pt-10 pb-6 px-12 flex justify-between items-center bg-black/50 backdrop-blur-xl z-20">
+        <header className="pt-6 sm:pt-10 pb-4 sm:pb-6 px-4 sm:px-12 flex justify-between items-center bg-black/50 backdrop-blur-xl z-20">
           <div>
             <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Магазин</h1>
-            <p className="text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
+            <p className="text-lg sm:text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
           </div>
           <button
-            className="w-10 h-10 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)] border border-white/10 cursor-pointer active:scale-95 transition-transform bg-zinc-900 flex items-center justify-center"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)] border border-white/10 cursor-pointer active:scale-95 transition-transform bg-zinc-900 flex items-center justify-center"
             onClick={() => profile ? navigate('/profile') : navigate('/login')}
           >
             {profile ? (
@@ -115,17 +109,17 @@ const Index = () => {
                 <span className="text-white font-black text-sm uppercase">{profile.username.charAt(0)}</span>
               )
             ) : (
-              <User size={18} className="text-zinc-400" />
+              <User size={16} className="text-zinc-400" />
             )}
           </button>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto relative px-12 pb-12 custom-scrollbar">
-          <div className="mb-6 flex items-center justify-between">
+        <main className="flex-1 overflow-y-auto relative px-3 sm:px-12 pb-4 sm:pb-12">
+          <div className="mb-4 sm:mb-6 flex items-center justify-between pt-1 sm:pt-0">
             <h2 className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em]">Рекомендуемые товары</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
             {products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -142,7 +136,7 @@ const Index = () => {
         </main>
 
         {/* Bottom Navigation */}
-        <nav className="pb-10 pt-4 px-10 flex justify-between items-center border-t border-white/5 bg-black/80 backdrop-blur-xl z-20">
+        <nav className="pb-6 sm:pb-10 pt-3 sm:pt-4 px-6 sm:px-10 flex justify-between items-center border-t border-white/5 bg-black/80 backdrop-blur-xl z-20">
           <button
             onClick={() => window.open('https://t.me/vibetechhSupport?direct', '_blank')}
             className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 active:scale-90 transition-transform text-zinc-400 hover:text-white"
