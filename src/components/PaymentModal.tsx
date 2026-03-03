@@ -36,9 +36,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogPortal container={containerRef?.current}>
-        <DialogOverlay className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm" />
-        <DialogContent 
-          className="absolute left-1/2 top-1/2 z-50 w-[92%] -translate-x-1/2 -translate-y-1/2 gap-0 border border-zinc-800 bg-black p-6 shadow-2xl duration-200 rounded-[32px] outline-none"
+        <DialogOverlay className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm" />
+        <DialogContent
+          className="absolute left-1/2 top-1/2 z-[101] w-[92%] -translate-x-1/2 -translate-y-1/2 gap-0 border border-zinc-800 bg-black p-6 shadow-2xl duration-200 rounded-[32px] outline-none"
         >
           <DialogHeader className="mb-6">
             <div className="flex justify-between items-start">
