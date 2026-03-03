@@ -13,7 +13,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Wallet, Landmark, Bitcoin, X } from "lucide-react";
+import { CreditCard, Wallet, Landmark, Bitcoin, X, ExternalLink } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 interface PaymentModalProps {
@@ -25,12 +25,48 @@ interface PaymentModalProps {
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productName, containerRef }) => {
   const methods = [
-    { id: 'sbp', name: 'Карта России (СБП)', icon: <CreditCard className="w-4 h-4" /> },
-    { id: 'kaspi', name: 'Kaspi (Visa)', icon: <Landmark className="w-4 h-4" /> },
-    { id: 'privat', name: 'Приват Банк', icon: <Landmark className="w-4 h-4" /> },
-    { id: 'rb', name: 'Оплата с РБ (Kaspi Visa)', icon: <CreditCard className="w-4 h-4" /> },
-    { id: 'paypal', name: 'PayPal', icon: <Wallet className="w-4 h-4" /> },
-    { id: 'crypto', name: 'Криптовалюта', icon: <Bitcoin className="w-4 h-4" /> },
+    { 
+      id: 'sbp', 
+      name: 'Карта России (СБП)', 
+      icon: <CreditCard className="w-4 h-4" />,
+      infoUrl: 'https://telegra.ph/Oplata-Kaspi-10-31' // Общий пример для РФ или обновить если есть другой
+    },
+    { 
+      id: 'kaspi', 
+      name: 'Kaspi (Visa)', 
+      icon: <Landmark className="w-4 h-4" />,
+      infoUrl: 'https://telegra.ph/Oplata-Kaspi-10-31'
+    },
+    { 
+      id: 'privat', 
+      name: 'Приват Банк', 
+      icon: <Landmark className="w-4 h-4" />,
+      infoUrl: 'https://telegra.ph/Oplata-PrivatBank-10-31'
+    },
+    { 
+      id: 'polski', 
+      name: 'Bank Polski', 
+      icon: <Landmark className="w-4 h-4" />,
+      infoUrl: 'https://telegra.ph/Oplata-Bank-Polski-10-31'
+    },
+    { 
+      id: 'rb', 
+      name: 'Оплата с РБ', 
+      icon: <CreditCard className="w-4 h-4" />,
+      infoUrl: 'https://telegra.ph/Oplata-s-belarus-10-31'
+    },
+    { 
+      id: 'paypal', 
+      name: 'PayPal', 
+      icon: <Wallet className="w-4 h-4" />,
+      infoUrl: 'https://telegra.ph/Oplata-PayPal-10-31'
+    },
+    { 
+      id: 'crypto', 
+      name: 'Криптовалюта', 
+      icon: <Bitcoin className="w-4 h-4" />,
+      infoUrl: 'https://telegra.ph/Oplata-PayPal-10-31'
+    },
   ];
 
   return (
@@ -54,7 +90,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
 
           <RadioGroup defaultValue="sbp" className="space-y-2 mb-8">
             {methods.map((method) => (
-              <div key={method.id} className="relative">
+              <div key={method.id} className="relative flex items-center group">
                 <RadioGroupItem
                   value={method.id}
                   id={method.id}
@@ -62,11 +98,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
                 />
                 <Label
                   htmlFor={method.id}
-                  className="flex items-center gap-3 p-4 rounded-2xl border border-transparent bg-zinc-900/50 hover:bg-zinc-800/80 peer-data-[state=checked]:border-white peer-data-[state=checked]:bg-zinc-900 transition-all cursor-pointer"
+                  className="flex-1 flex items-center gap-3 p-4 rounded-2xl border border-transparent bg-zinc-900/50 hover:bg-zinc-800/80 peer-data-[state=checked]:border-white peer-data-[state=checked]:bg-zinc-900 transition-all cursor-pointer"
                 >
                   <span className="text-zinc-400">{method.icon}</span>
                   <span className="font-medium text-[14px] text-zinc-100">{method.name}</span>
                 </Label>
+                <button
+                  onClick={() => window.open(method.infoUrl, '_blank')}
+                  className="absolute right-4 p-2 rounded-xl bg-white/5 text-zinc-500 hover:text-white hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100 peer-data-[state=checked]:opacity-100"
+                  title="Инструкция по оплате"
+                >
+                  <ExternalLink size={14} />
+                </button>
               </div>
             ))}
           </RadioGroup>
