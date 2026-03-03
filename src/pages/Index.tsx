@@ -16,7 +16,8 @@ const products = [
   {
     id: 'jarvis-max',
     name: 'Jarvis Max',
-    description: 'Ultimate personal AI assistant with full hardware integration.',
+    description: 'Голосовой помощник с встроенным искусственным интеллектом.',
+    fullInfo: 'Голосовой помощник с встроенным искусственным интеллектом.\n\nПонимает контекст, отвечает осмысленно, работает как полноценный цифровой ассистент.\n\nПлюс расширенный редактор команд для глубокой кастомизации.',
     price: '6900₽',
     image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
@@ -24,7 +25,8 @@ const products = [
   {
     id: 'jarvis-pro',
     name: 'Jarvis Pro',
-    description: 'Advanced productivity suite for creative professionals.',
+    description: 'Быстрый голосовой помощник с базой более 150 готовых команд.',
+    fullInfo: 'Быстрый голосовой помощник с базой более 150 готовых команд.\n\nСоздавайте собственные сценарии через простой и удобный редактор.\n\nМаксимум скорости. Полный контроль.',
     price: '2380₽',
     image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
@@ -32,7 +34,8 @@ const products = [
   {
     id: 'pc-control',
     name: 'PcControl',
-    description: 'Seamless desktop automation and neural interface.',
+    description: 'Полное управление компьютером через Telegram-бота.',
+    fullInfo: 'Полное управление компьютером через Telegram-бота из любой точки мира.\n\nЗапуск программ, контроль процессов, доступ к системе — дистанционно и безопасно.',
     price: '1980₽',
     image: 'https://images.unsplash.com/photo-1547082299-de196ea013d6?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
@@ -40,7 +43,8 @@ const products = [
   {
     id: 'friday-pro',
     name: 'Friday Pro',
-    description: 'The next evolution of contextual neural processing.',
+    description: 'Тот же функционал, что и у Jarvis Pro, но с женским голосом.',
+    fullInfo: 'Тот же функционал, что и у Jarvis Pro, но с женским голосом.\n\nСтиль. Атмосфера. Характер.',
     price: '2380₽',
     image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800&auto=format&fit=crop',
     isComingSoon: false
@@ -59,9 +63,11 @@ const Index = () => {
   };
 
   const handleInfo = (productName: string) => {
-    toast.info(`Информация о ${productName}`, {
-      description: "Подробные характеристики будут доступны в следующем обновлении.",
-      className: "bg-zinc-900 text-white border-zinc-800"
+    const product = products.find(p => p.name === productName);
+    toast.info(productName, {
+      description: product?.fullInfo || "Информация скоро появится.",
+      className: "bg-zinc-900 text-white border-zinc-800 p-6",
+      duration: 5000,
     });
   };
 
