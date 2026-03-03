@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Wallet, Calendar, Clock, ShoppingBag, LogOut, ChevronRight, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Wallet, Calendar, Clock, ShoppingBag, LogOut, ChevronRight, RefreshCw, ExternalLink, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useCurrency } from '@/hooks/use-currency';
 import { useAuth } from '@/hooks/use-auth';
@@ -29,6 +29,10 @@ const Profile = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [daysInApp, setDaysInApp] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [invitingId, setInvitingId] = useState<string | null>(null);
+  const [inviteLinks, setInviteLinks] = useState<Record<string, string>>({});
+
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkdmxhaHRvaXdpbXJveWNxY2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDIwODksImV4cCI6MjA4ODExODA4OX0.DCM-xvruLo2Sho-6I_o87aa5OENCgxCfmyYptMk86BE';
 
   useEffect(() => {
     if (!isLoading && !profile) {
@@ -64,6 +68,31 @@ const Profile = () => {
       .eq('profile_id', profile.id)
       .order('purchased_at', { ascending: false });
     if (data) setPurchases(data as Purchase[]);
+  };
+
+  const handleGetProduct = async (purchaseId: string) => {
+    setInvitingId(purchaseId);
+    try {
+      const res = await fetch('https://ldvlahtoiwimroycqcav.supabase.co/functions/v1/invite-to-group', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+        body: JSON.stringify({ purchaseId }),
+      });
+      const data = await res.json();
+      if (data.invite_link) {
+        // Сохраняем ссылку и открываем
+        setInviteLinks(prev => ({ ...prev, [purchaseId]: data.invite_link }));
+        window.open(data.invite_link, '_blank');
+      } else if (data.success) {
+        // Добавлен автоматически
+        await loadPurchases();
+      } else {
+        alert(data.error || 'Ошибка. Попробуйте позже.');
+      }
+    } catch {
+      alert('Ошибка соединения');
+    }
+    setInvitingId(null);
   };
 
   const handleRefresh = async () => {
@@ -261,10 +290,36 @@ const Profile = () => {
                           </div>
                         )}
                         {item.status === 'approved' && (
-                          <div className="mt-3 pt-3 border-t border-green-400/10">
+                          <div className="mt-3 pt-3 border-t border-green-400/10 space-y-3">
                             <p className="text-xs text-green-300/70">
-                              🎉 Оплата подтверждена! Лицензия активирована.
+                              🎉 Оплата подтверждена! Нажмите кнопку ниже чтобы получить доступ.
                             </p>
+                            {item.invited_to_group && !inviteLinks[item.id] ? (
+                              <div className="flex items-center gap-2 text-xs text-green-400 font-bold">
+                                <span className="w-2 h-2 rounded-full bg-green-400" />
+                                Вы уже в группе {item.product_name}
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  if (inviteLinks[item.id]) {
+                                    window.open(inviteLinks[item.id], '_blank');
+                                  } else {
+                                    handleGetProduct(item.id);
+                                  }
+                                }}
+                                disabled={invitingId === item.id}
+                                className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 disabled:opacity-50 text-black font-black text-sm uppercase tracking-widest py-3 rounded-2xl transition-all active:scale-95"
+                              >
+                                {invitingId === item.id ? (
+                                  <><Loader2 size={16} className="animate-spin" /> Получаем доступ...</>
+                                ) : inviteLinks[item.id] ? (
+                                  <><ExternalLink size={16} /> Открыть группу</>
+                                ) : (
+                                  <><ExternalLink size={16} /> Получить продукт</>
+                                )}
+                              </button>
+                            )}
                           </div>
                         )}
                         {item.status === 'rejected' && (

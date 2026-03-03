@@ -110,6 +110,30 @@ serve(async (req) => {
 
       await answerCallbackQuery(callbackQueryId, '✅ Покупка одобрена!');
 
+      // Автоматически добавляем в группу
+      const SUPABASE_URL_VAL = Deno.env.get('SUPABASE_URL')!;
+      const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
+      let inviteResult = '';
+      try {
+        const inviteRes = await fetch(`${SUPABASE_URL_VAL}/functions/v1/invite-to-group`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+          body: JSON.stringify({ purchaseId: purchase.id }),
+        });
+        const inviteData = await inviteRes.json();
+        console.log("[telegram-webhook] Invite result:", inviteData);
+        if (inviteData.success) {
+          inviteResult = inviteData.invite_link
+            ? `\n🔗 Ссылка для входа: ${inviteData.invite_link}`
+            : `\n✅ Добавлен в группу *${inviteData.group}* автоматически`;
+        } else {
+          inviteResult = `\n⚠️ Не удалось добавить в группу: ${inviteData.error}`;
+        }
+      } catch (e) {
+        console.error("[telegram-webhook] Invite error:", e);
+        inviteResult = '\n⚠️ Ошибка при добавлении в группу';
+      }
+
       // Редактируем сообщение в Telegram
       if (fromChatId && messageId) {
         await editMessageCaption(
@@ -119,14 +143,15 @@ serve(async (req) => {
           `👤 Пользователь: *${userName}*\n` +
           `📦 Товар: *${purchase.product_name}*\n` +
           `💰 Сумма: *${purchase.price} ₽*\n` +
-          `🕐 Рассмотрено: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}`
+          `🕐 Рассмотрено: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}` +
+          inviteResult
         );
       }
 
       // Уведомляем второго админа
       for (const adminId of adminIds) {
         if (String(adminId) !== String(fromChatId)) {
-          await sendMessage(adminId, `✅ Заявка *${purchase.product_name}* для *${userName}* одобрена @${adminUsername}`);
+          await sendMessage(adminId, `✅ Заявка *${purchase.product_name}* для *${userName}* одобрена @${adminUsername}${inviteResult}`);
         }
       }
 

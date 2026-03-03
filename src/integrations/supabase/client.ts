@@ -29,4 +29,7 @@ export type Purchase = {
   screenshot_url: string | null;
   reviewed_at: string | null;
   telegram_message_id: number | null;
+  invited_to_group: boolean;
+  invited_at: string | null;
+  invite_link: string | null;
 };
