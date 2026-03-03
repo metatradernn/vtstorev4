@@ -6,6 +6,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import { Sparkles } from "lucide-react";
 import ProductCard from '@/components/ProductCard';
 import PaymentModal from '@/components/PaymentModal';
 import { toast } from 'sonner';
@@ -67,8 +68,8 @@ const Index = () => {
             <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Store</h1>
             <p className="text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
           </div>
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <div className="w-4 h-4 bg-black rotate-45"></div>
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+            <Sparkles className="w-5 h-5 text-black" />
           </div>
         </header>
 
