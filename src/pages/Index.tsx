@@ -49,6 +49,7 @@ const products = [
 
 const Index = () => {
   const navigate = useNavigate();
+  const phoneContainerRef = React.useRef<HTMLDivElement>(null);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
 
@@ -67,7 +68,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
       {/* iPhone Frame */}
-      <div className="relative w-full max-w-[390px] h-screen sm:h-[844px] bg-black rounded-none sm:rounded-[60px] border-0 sm:border-[8px] border-zinc-900 overflow-hidden shadow-none sm:shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col">
+      <div
+        ref={phoneContainerRef}
+        className="relative w-full max-w-[390px] h-screen sm:h-[844px] bg-black rounded-none sm:rounded-[60px] border-0 sm:border-[8px] border-zinc-900 overflow-hidden shadow-none sm:shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col"
+      >
         
         {/* Notch (only on desktop) */}
         <div className="hidden sm:block absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-zinc-900 rounded-b-3xl z-50"></div>
@@ -137,10 +141,11 @@ const Index = () => {
         </nav>
       </div>
 
-      <PaymentModal 
-        isOpen={isPayModalOpen} 
+      <PaymentModal
+        isOpen={isPayModalOpen}
         onClose={() => setIsPayModalOpen(false)}
         productName={selectedProduct || ""}
+        containerRef={phoneContainerRef}
       />
     </div>
   );
