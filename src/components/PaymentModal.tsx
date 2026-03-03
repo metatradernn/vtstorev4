@@ -104,6 +104,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           productName,
           profileId: profile.id,
           currency: 'RUB',
+          paymentMethodId: selectedMethod,
         }),
       });
 

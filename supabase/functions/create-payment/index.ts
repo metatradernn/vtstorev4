@@ -5,6 +5,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Маппинг методов оплаты на коды Platega
+const PAYMENT_METHOD_MAP: Record<string, number> = {
+  sbp: 2,        // СБП QR
+  kaspi: 12,     // Международный эквайринг
+  privat: 12,    // Международный эквайринг
+  polski: 12,    // Международный эквайринг
+  rb: 12,        // Международный эквайринг
+  paypal: 12,    // Международный эквайринг
+  crypto: 13,    // Криптовалюта
+  card_ru: 10,   // Российские карты
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -22,7 +34,7 @@ serve(async (req) => {
       });
     }
 
-    const { amount, productName, profileId, currency = 'RUB' } = await req.json();
+    const { amount, productName, profileId, currency = 'RUB', paymentMethodId = 'kaspi' } = await req.json();
 
     if (!amount || !productName || !profileId) {
       return new Response(JSON.stringify({ error: 'Не указаны обязательные параметры' }), {
@@ -31,13 +43,16 @@ serve(async (req) => {
       });
     }
 
-    console.log("[create-payment] Creating payment", { amount, productName, profileId, currency });
+    const paymentMethod = PAYMENT_METHOD_MAP[paymentMethodId] ?? 12;
+
+    console.log("[create-payment] Creating payment", { amount, productName, profileId, currency, paymentMethod });
 
     const body = {
+      paymentMethod,
       paymentDetails: { amount: Number(amount), currency },
       description: `Покупка: ${productName}`,
-      return: `${req.headers.get('origin') || 'https://ldvlahtoiwimroycqcav.supabase.co'}/payment-success`,
-      failedUrl: `${req.headers.get('origin') || 'https://ldvlahtoiwimroycqcav.supabase.co'}/payment-failed`,
+      return: 'https://vibetechnology.app/payment-success',
+      failedUrl: 'https://vibetechnology.app/payment-failed',
       payload: JSON.stringify({ profileId, productName }),
     };
 
