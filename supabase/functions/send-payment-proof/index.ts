@@ -46,7 +46,7 @@ serve(async (req) => {
       `📦 Товар: *${productName}*\n` +
       `💳 Метод: *${paymentMethod}*${country ? ` (${country})` : ''}\n` +
       `🕐 Время: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}\n\n` +
-      `💰 Сумма: *${productPrice}*`;
+      `💰 Сумма: *${productPrice.split(' (')[0]}*`;
 
     // Поддержка нескольких админов через запятую: "123456789,987654321"
     const adminIds = ADMIN_CHAT_ID.split(',').map(id => id.trim()).filter(Boolean);
