@@ -1,10 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Wallet, Calendar, Clock, ShoppingBag, User, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Wallet, Calendar, Clock, ShoppingBag, LogOut, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useCurrency } from '@/hooks/use-currency';
+import { useAuth } from '@/hooks/use-auth';
+import { supabase, Purchase } from '@/integrations/supabase/client';
 import TopUpModal from '@/components/TopUpModal';
 import {
   DropdownMenu,
@@ -16,61 +18,104 @@ import {
 const Profile = () => {
   const navigate = useNavigate();
   const { currency, setCurrency, convertPrice, getSymbol } = useCurrency();
-  const [isTopUpOpen, setIsTopUpOpen] = React.useState(false);
-  
-  const userData = {
-    username: "Vibe User",
-    telegramId: "@vibe_tech_user",
-    registrationDate: "12.03.2024",
-    daysInApp: 142,
-    balanceVB: 0, // Баланс теперь 0
-    purchasedProducts: [
-      { id: 1, name: "Jarvis Pro", date: "15.03.2024" },
-      { id: 2, name: "PcControl", date: "20.04.2024" }
-    ]
+  const { profile, logout, isLoading } = useAuth();
+  const [isTopUpOpen, setIsTopUpOpen] = useState(false);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [daysInApp, setDaysInApp] = useState(0);
+
+  useEffect(() => {
+    if (!isLoading && !profile) {
+      navigate('/login');
+    }
+  }, [profile, isLoading, navigate]);
+
+  useEffect(() => {
+    if (profile) {
+      loadPurchases();
+      const created = new Date(profile.created_at);
+      const now = new Date();
+      const days = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+      setDaysInApp(days);
+    }
+  }, [profile]);
+
+  const loadPurchases = async () => {
+    if (!profile) return;
+    const { data } = await supabase
+      .from('purchases')
+      .select('*')
+      .eq('profile_id', profile.id)
+      .order('purchased_at', { ascending: false });
+    if (data) setPurchases(data as Purchase[]);
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  if (isLoading || !profile) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const registrationDate = new Date(profile.created_at).toLocaleDateString('ru-RU');
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-0 sm:p-4 font-sans text-white">
       <div className="relative w-full max-w-[1024px] h-screen sm:h-[768px] bg-black rounded-none sm:rounded-[40px] border-0 sm:border-[12px] border-zinc-900 overflow-hidden flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.8)]">
-        
-        <header className="pt-10 pb-6 px-12 flex items-center gap-6 bg-black/50 backdrop-blur-xl z-20">
-          <button onClick={() => navigate('/')} className="p-3 hover:bg-white/10 rounded-full transition-colors border border-white/5">
-            <ArrowLeft size={28} />
+
+        <header className="pt-10 pb-6 px-12 flex items-center justify-between bg-black/50 backdrop-blur-xl z-20">
+          <div className="flex items-center gap-6">
+            <button onClick={() => navigate('/')} className="p-3 hover:bg-white/10 rounded-full transition-colors border border-white/5">
+              <ArrowLeft size={28} />
+            </button>
+            <h1 className="text-2xl font-bold">Профиль</h1>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all text-sm font-bold"
+          >
+            <LogOut size={16} />
+            Выйти
           </button>
-          <h1 className="text-2xl font-bold">Управление профилем</h1>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-12 py-8 space-y-10 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto px-12 py-8 space-y-10">
+
+          {/* User Info */}
           <div className="flex items-center gap-8 pt-4">
-            <div className="w-32 h-32 rounded-full border-2 border-white/10 p-1 relative flex-shrink-0">
-              <img
-                src="/src/assets/avatar.jpg"
-                alt="Profile"
-                className="w-full h-full object-cover rounded-full"
-              />
-              <div className="absolute bottom-1 right-1 bg-white text-black p-2 rounded-full shadow-lg">
-                <User size={18} fill="black" />
-              </div>
+            <div className="w-32 h-32 rounded-full border-2 border-white/10 overflow-hidden flex-shrink-0 bg-zinc-900 flex items-center justify-center">
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-5xl font-black text-white/30 uppercase">
+                  {profile.username.charAt(0)}
+                </span>
+              )}
             </div>
             <div className="text-left">
-              <h2 className="text-4xl font-black italic uppercase tracking-tighter">{userData.username}</h2>
-              <p className="text-zinc-500 font-mono text-lg">{userData.telegramId}</p>
-              <div className="flex gap-4 mt-3">
+              <h2 className="text-4xl font-black italic uppercase tracking-tighter">{profile.username}</h2>
+              <p className="text-zinc-500 font-mono text-lg">{profile.telegram_id}</p>
+              <div className="flex gap-4 mt-3 flex-wrap">
                 <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5">
                   <Calendar size={14} className="text-zinc-400" />
-                  <span className="text-xs font-bold text-zinc-300 uppercase tracking-widest">{userData.registrationDate}</span>
+                  <span className="text-xs font-bold text-zinc-300 uppercase tracking-widest">{registrationDate}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5">
                   <Clock size={14} className="text-zinc-400" />
-                  <span className="text-xs font-bold text-zinc-300 uppercase tracking-widest">{userData.daysInApp} ДНЕЙ</span>
+                  <span className="text-xs font-bold text-zinc-300 uppercase tracking-widest">{daysInApp} ДНЕЙ</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Balance Card with Currency Switcher */}
+
+            {/* Balance */}
             <div className="space-y-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -78,7 +123,7 @@ const Profile = () => {
                     <div className="space-y-2">
                       <p className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">Ваш Баланс</p>
                       <h3 className="text-5xl font-black text-white">
-                        {convertPrice(userData.balanceVB)} {getSymbol()}
+                        {convertPrice(profile.balance)} {getSymbol()}
                       </h3>
                       <div className="flex items-center gap-1 text-xs text-zinc-400 group-hover:text-white transition-colors">
                         <span>Сменить валюту</span>
@@ -105,35 +150,37 @@ const Profile = () => {
               </Button>
             </div>
 
-            {/* Purchases List */}
+            {/* Purchases */}
             <div className="space-y-6">
               <h4 className="text-sm font-bold uppercase tracking-[0.3em] text-zinc-500 flex items-center gap-3 px-2">
                 <ShoppingBag size={18} /> Мои покупки
               </h4>
               <div className="grid grid-cols-1 gap-3">
-                {userData.purchasedProducts.map((item) => (
-                  <div key={item.id} className="bg-zinc-900/40 p-5 rounded-3xl flex justify-between items-center border border-white/5 hover:bg-zinc-900/60 transition-colors">
-                    <div className="flex flex-col">
-                      <span className="font-bold text-lg">{item.name}</span>
-                      <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Лицензия активна</span>
-                    </div>
-                    <span className="text-sm font-mono text-zinc-500 bg-black/40 px-3 py-1 rounded-lg">{item.date}</span>
+                {purchases.length === 0 ? (
+                  <div className="bg-zinc-900/30 p-6 rounded-3xl border border-white/5 text-center">
+                    <p className="text-zinc-600 text-sm font-medium">Покупок пока нет</p>
                   </div>
-                ))}
+                ) : (
+                  purchases.map((item) => (
+                    <div key={item.id} className="bg-zinc-900/40 p-5 rounded-3xl flex justify-between items-center border border-white/5 hover:bg-zinc-900/60 transition-colors">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-lg">{item.product_name}</span>
+                        <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Лицензия активна</span>
+                      </div>
+                      <span className="text-sm font-mono text-zinc-500 bg-black/40 px-3 py-1 rounded-lg">
+                        {new Date(item.purchased_at).toLocaleDateString('ru-RU')}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
-          </div>
-
-          <div className="flex justify-end pt-4">
-            <Button className="h-16 px-12 rounded-[24px] bg-zinc-900 text-white border border-white/10 font-bold hover:bg-white hover:text-black transition-all">
-              Настройки аккаунта
-            </Button>
           </div>
         </main>
 
         <TopUpModal isOpen={isTopUpOpen} onClose={() => setIsTopUpOpen(false)} />
 
-        <div className="h-10"></div>
+        <div className="h-10" />
       </div>
     </div>
   );

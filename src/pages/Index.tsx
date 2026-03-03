@@ -7,10 +7,11 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { Sparkles, Headphones, Newspaper } from "lucide-react";
+import { Sparkles, Headphones, Newspaper, User } from "lucide-react";
 import ProductCard from '@/components/ProductCard';
 import PaymentModal from '@/components/PaymentModal';
 import InfoModal from '@/components/InfoModal';
+import { useAuth } from '@/hooks/use-auth';
 
 const products = [
   {
@@ -71,6 +72,7 @@ const products = [
 
 const Index = () => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const phoneContainerRef = React.useRef<HTMLDivElement>(null);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
@@ -102,16 +104,20 @@ const Index = () => {
             <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Store</h1>
             <p className="text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
           </div>
-          <div
-            className="w-10 h-10 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)] border border-white/10 cursor-pointer active:scale-95 transition-transform"
-            onClick={() => navigate('/profile')}
+          <button
+            className="w-10 h-10 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)] border border-white/10 cursor-pointer active:scale-95 transition-transform bg-zinc-900 flex items-center justify-center"
+            onClick={() => profile ? navigate('/profile') : navigate('/login')}
           >
-            <img
-              src="/src/assets/avatar.jpg"
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
-          </div>
+            {profile ? (
+              profile.avatar_url ? (
+                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-black text-sm uppercase">{profile.username.charAt(0)}</span>
+              )
+            ) : (
+              <User size={18} className="text-zinc-400" />
+            )}
+          </button>
         </header>
 
         {/* Content */}
