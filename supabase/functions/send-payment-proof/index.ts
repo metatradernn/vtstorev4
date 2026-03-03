@@ -40,13 +40,12 @@ serve(async (req) => {
 
     console.log("[send-payment-proof] Sending proof", { productName, username, telegramId, paymentMethod });
 
-    const caption = `🛒 *НОВАЯ ЗАЯВКА НА ОПЛАТУ*\n\n` +
-      `👤 Пользователь: *${username}*\n` +
+    const caption = `👤 Пользователь: *${username}*\n` +
       `📱 Telegram ID: \`${telegramId}\`\n` +
       `📦 Товар: *${productName}*\n` +
-      `💰 Сумма: *${productPrice} ₽*\n` +
       `💳 Метод: *${paymentMethod}*\n` +
-      `🕐 Время: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}`;
+      `🕐 Время: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}\n\n` +
+      `💰 Сумма: *${productPrice} ₽*`;
 
     // Поддержка нескольких админов через запятую: "123456789,987654321"
     const adminIds = ADMIN_CHAT_ID.split(',').map(id => id.trim()).filter(Boolean);
