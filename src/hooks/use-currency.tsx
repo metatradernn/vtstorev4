@@ -9,9 +9,10 @@ interface CurrencyContextType {
   convertTo: (rubPrice: number, toCurrency: Currency) => string;
   getSymbol: () => string;
   isLoadingRates: boolean;
+  ratesUpdatedAt: Date | null;
 }
 
-const symbols: Record<Currency, string> = {
+export const symbols: Record<Currency, string> = {
   VB:  'VB',
   RUB: '₽',
   USD: '$',
@@ -24,7 +25,7 @@ const symbols: Record<Currency, string> = {
   TRY: '₺',
 };
 
-// Fallback курсы на случай если API недоступен
+// Fallback курсы (приблизительные, на случай если API недоступен)
 const FALLBACK_RATES: Record<Currency, number> = {
   VB:  1,
   RUB: 1,
@@ -44,42 +45,79 @@ export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
   const [currency, setCurrency] = useState<Currency>('RUB');
   const [liveRates, setLiveRates] = useState<Record<Currency, number>>(FALLBACK_RATES);
   const [isLoadingRates, setIsLoadingRates] = useState(true);
+  const [ratesUpdatedAt, setRatesUpdatedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const res = await fetch('https://api.exchangerate-api.com/v4/latest/RUB');
+        // open.er-api.com — бесплатный API с актуальными курсами, обновляется каждые 24ч
+        const res = await fetch('https://open.er-api.com/v6/latest/RUB');
         const data = await res.json();
-        if (data.rates) {
+
+        if (data.result === 'success' && data.rates) {
+          const rates = data.rates;
+          console.log('[CurrencyProvider] Актуальные курсы к RUB:', {
+            USD: rates.USD,
+            EUR: rates.EUR,
+            UAH: rates.UAH,
+            BYN: rates.BYN,
+            KZT: rates.KZT,
+            PLN: rates.PLN,
+            GBP: rates.GBP,
+            TRY: rates.TRY,
+          });
+
           setLiveRates({
             VB:  1,
             RUB: 1,
-            USD: data.rates.USD,
-            EUR: data.rates.EUR,
-            UAH: data.rates.UAH,
-            BYN: data.rates.BYN,
-            KZT: data.rates.KZT,
-            PLN: data.rates.PLN,
-            GBP: data.rates.GBP,
-            TRY: data.rates.TRY,
+            USD: rates.USD,
+            EUR: rates.EUR,
+            UAH: rates.UAH,
+            BYN: rates.BYN ?? rates.BYR ?? FALLBACK_RATES.BYN,
+            KZT: rates.KZT,
+            PLN: rates.PLN,
+            GBP: rates.GBP,
+            TRY: rates.TRY,
           });
+          setRatesUpdatedAt(new Date());
+        } else {
+          throw new Error('Bad response from open.er-api.com');
         }
-      } catch {
-        // используем fallback
+      } catch (err) {
+        console.warn('[CurrencyProvider] open.er-api.com недоступен, пробуем fallback API...', err);
+        // Второй источник — exchangerate-api.com
+        try {
+          const res2 = await fetch('https://api.exchangerate-api.com/v4/latest/RUB');
+          const data2 = await res2.json();
+          if (data2.rates) {
+            setLiveRates({
+              VB:  1,
+              RUB: 1,
+              USD: data2.rates.USD,
+              EUR: data2.rates.EUR,
+              UAH: data2.rates.UAH,
+              BYN: data2.rates.BYN ?? FALLBACK_RATES.BYN,
+              KZT: data2.rates.KZT,
+              PLN: data2.rates.PLN,
+              GBP: data2.rates.GBP,
+              TRY: data2.rates.TRY,
+            });
+            setRatesUpdatedAt(new Date());
+            console.log('[CurrencyProvider] Курсы загружены из fallback API');
+          }
+        } catch {
+          console.error('[CurrencyProvider] Оба API недоступны, используем fallback курсы');
+        }
       } finally {
         setIsLoadingRates(false);
       }
     };
 
     fetchRates();
-    // Обновляем курсы каждые 10 минут
-    const interval = setInterval(fetchRates, 10 * 60 * 1000);
+    // Обновляем курсы каждые 30 минут
+    const interval = setInterval(fetchRates, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const convertPrice = (rubPrice: number): string => {
-    return convertTo(rubPrice, currency);
-  };
 
   const convertTo = (rubPrice: number, toCurrency: Currency): string => {
     if (toCurrency === 'VB') return rubPrice.toLocaleString('ru-RU');
@@ -90,10 +128,14 @@ export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
     return Math.ceil(converted).toLocaleString('ru-RU');
   };
 
+  const convertPrice = (rubPrice: number): string => {
+    return convertTo(rubPrice, currency);
+  };
+
   const getSymbol = () => symbols[currency];
 
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, convertPrice, convertTo, getSymbol, isLoadingRates }}>
+    <CurrencyContext.Provider value={{ currency, setCurrency, convertPrice, convertTo, getSymbol, isLoadingRates, ratesUpdatedAt }}>
       {children}
     </CurrencyContext.Provider>
   );

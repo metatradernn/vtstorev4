@@ -48,7 +48,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onPay,
   onInfo
 }) => {
-  const { convertPrice, getSymbol, setCurrency, currency, isLoadingRates, convertTo } = useCurrency();
+  const { convertPrice, getSymbol, setCurrency, currency, isLoadingRates, convertTo, ratesUpdatedAt } = useCurrency();
   const numericPrice = parseInt(price.replace(/[^\d]/g, '')) || 0;
   const currentCurrencyInfo = CURRENCIES.find(c => c.id === currency);
 
@@ -93,8 +93,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </span>
             )}
             {!isComingSoon && !isLoadingRates && currentCurrencyInfo && (
-              <span className="text-[10px] text-zinc-600">
-                {currentCurrencyInfo.flag} {currentCurrencyInfo.label}
+              <span className="text-[10px] text-zinc-600 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block animate-pulse" />
+                {currentCurrencyInfo.flag} {currentCurrencyInfo.label} · live
               </span>
             )}
           </div>
@@ -110,8 +111,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-zinc-950 border-white/10 text-white p-2 rounded-2xl min-w-[200px] shadow-2xl">
-              <DropdownMenuLabel className="text-[10px] text-zinc-600 uppercase tracking-widest px-3 py-2">
-                Выберите валюту
+              <DropdownMenuLabel className="text-[10px] text-zinc-600 uppercase tracking-widest px-3 py-2 flex items-center justify-between">
+                <span>Выберите валюту</span>
+                {!isLoadingRates && (
+                  <span className="flex items-center gap-1 text-green-500 normal-case tracking-normal">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+                    актуальный курс
+                  </span>
+                )}
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-white/5 mb-1" />
               {CURRENCIES.map((cur) => (
