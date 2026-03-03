@@ -7,14 +7,16 @@ const corsHeaders = {
 
 // Маппинг методов оплаты на коды Platega
 const PAYMENT_METHOD_MAP: Record<string, number> = {
-  sbp: 2,        // СБП QR
+  sbp: 2,        // СБП QR (Россия)
+  cards_ru: 10,  // Карты РФ (Мир, Visa, Mastercard)
+  card: 11,      // Карточный эквайринг
   kaspi: 12,     // Международный эквайринг
-  privat: 12,    // Международный эквайринг
-  polski: 12,    // Международный эквайринг
-  rb: 12,        // Международный эквайринг
-  paypal: 12,    // Международный эквайринг
+  privat: 12,
+  mono: 12,
+  polski: 12,
+  rb: 12,
+  paypal: 12,
   crypto: 13,    // Криптовалюта
-  card_ru: 10,   // Российские карты
 };
 
 serve(async (req) => {
