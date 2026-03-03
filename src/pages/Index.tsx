@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Carousel,
   CarouselContent,
@@ -47,6 +48,7 @@ const products = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
 
@@ -76,7 +78,10 @@ const Index = () => {
             <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Store</h1>
             <p className="text-xl font-black tracking-tighter uppercase italic">Vibe Technology</p>
           </div>
-          <div className="w-10 h-10 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)] border border-white/10">
+          <div
+            className="w-10 h-10 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)] border border-white/10 cursor-pointer active:scale-95 transition-transform"
+            onClick={() => navigate('/profile')}
+          >
             <img
               src="/src/assets/avatar.jpg"
               alt="Profile"
@@ -118,7 +123,12 @@ const Index = () => {
         <nav className="pb-10 pt-4 px-10 flex justify-between items-center border-t border-white/5 bg-black/80 backdrop-blur-xl z-20">
           <div className="w-6 h-6 border-2 border-white/30 rounded-md"></div>
           <div className="w-12 h-1 bg-white/10 rounded-full"></div>
-          <div className="w-6 h-6 bg-white rounded-full"></div>
+          <button
+            onClick={() => navigate('/profile')}
+            className="w-8 h-8 bg-white rounded-full flex items-center justify-center active:scale-90 transition-transform overflow-hidden border border-white/20"
+          >
+            <img src="/src/assets/avatar.jpg" className="w-full h-full object-cover" />
+          </button>
         </nav>
       </div>
 
