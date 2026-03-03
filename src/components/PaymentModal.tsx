@@ -52,7 +52,7 @@ const METHOD_NAMES: Record<string, string> = {
 const convertAmount = (rubAmount: number, rate: number, symbol: string, currency: string): string => {
   if (currency === 'RUB') return `${rubAmount} ₽`;
   const converted = Math.ceil(rubAmount * rate);
-  return `${converted} ${symbol}`;
+  return `${converted.toLocaleString('ru-RU')} ${symbol}`;
 };
 
 // Конвертация в тенге для админа
@@ -93,20 +93,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, productNam
     setStatus('sending');
     setErrorMsg('');
 
-    const allMethods = [...PLATEGA_METHODS, ...MANUAL_METHODS];
-    const method = allMethods.find(m => m.id === selectedMethod);
-    const clientAmount = method
-      ? convertAmount(productPrice || 0, method.rate, method.symbol, method.currency)
-      : `${productPrice} ₽`;
-    const adminAmount = toKZT(productPrice || 0);
-    const countryStr = method?.country || '';
+    const countryStr = [...PLATEGA_METHODS, ...MANUAL_METHODS].find(m => m.id === selectedMethod)?.country || '';
 
     try {
       const fd = new FormData();
       fd.append('screenshot', screenshot);
       fd.append('productName', productName);
-      fd.append('clientAmount', clientAmount);
-      fd.append('adminAmount', adminAmount);
+      fd.append('rubAmount', String(productPrice || 0));
       fd.append('country', countryStr);
       fd.append('username', profile.username);
       fd.append('telegramId', profile.telegram_id);
