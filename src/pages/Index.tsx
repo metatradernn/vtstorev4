@@ -20,7 +20,7 @@ const products = [
     description: 'Голосовой помощник с встроенным искусственным интеллектом.',
     fullInfo: 'Голосовой помощник с встроенным искусственным интеллектом.\n\nПонимает контекст, отвечает осмысленно, работает как полноценный цифровой ассистент.\n\nПлюс расширенный редактор команд для глубокой кастомизации.',
     price: '6900',
-    image: '/src/assets/jarvis-max.jpg',
+    image: '/assets/jarvis-max.jpg',
     isComingSoon: false
   },
   {
@@ -29,7 +29,7 @@ const products = [
     description: 'Быстрый голосовой помощник с базой более 150 готовых команд.',
     fullInfo: 'Быстрый голосовой помощник с базой более 150 готовых команд.\n\nСоздавайте собственные сценарии через простой и удобный редактор.\n\nМаксимум скорости. Полный контроль.',
     price: '2380',
-    image: '/src/assets/jarvis-pro.jpg',
+    image: '/assets/jarvis-pro.jpg',
     isComingSoon: false
   },
   {
@@ -38,7 +38,7 @@ const products = [
     description: 'Полное управление компьютером через Telegram-бота.',
     fullInfo: 'Полное управление компьютером через Telegram-бота из любой точки мира.\n\nЗапуск программ, контроль процессов, доступ к системе — дистанционно и безопасно.',
     price: '1980',
-    image: '/src/assets/pc-control.jpg',
+    image: '/assets/pc-control.jpg',
     isComingSoon: false
   },
   {
@@ -47,7 +47,7 @@ const products = [
     description: 'Тот же функционал, что и у Jarvis Pro, но с женским голосом.',
     fullInfo: 'Тот же функционал, что и у Jarvis Pro, но с женским голосом.\n\nСтиль. Атмосфера. Характер.',
     price: '2380',
-    image: '/src/assets/friday-pro.jpg',
+    image: '/assets/friday-pro.jpg',
     isComingSoon: false
   },
   {
@@ -56,7 +56,7 @@ const products = [
     description: 'Анимированные обои с интеграцией Jarvis.',
     fullInfo: 'Анимированные обои с интеграцией Jarvis.\n\nЖивой рабочий стол, который реагирует и работает вместе с вами.\n\nПолная синхронизация с вашим ассистентом и динамические визуальные эффекты.',
     price: '1200',
-    image: '/src/assets/vibewall.jpg',
+    image: '/assets/vibewall.jpg',
     isComingSoon: false
   },
   {
@@ -65,7 +65,7 @@ const products = [
     description: 'Новое поколение искусственного интеллекта. Скоро в продаже.',
     fullInfo: 'FRIDAY — это не просто помощник, это цифровая сущность.\n\nПолное погружение, улучшенная нейронная сеть и уникальный интерфейс взаимодействия.\n\nПродукт находится на стадии финального тестирования.',
     price: '0₽',
-    image: '/src/assets/friday-max.jpg',
+    image: '/assets/friday-max.jpg',
     isComingSoon: true
   }
 ];
